@@ -106,6 +106,10 @@ class splashscreenState extends State<splashscreen> {
       if (rememberUser != null) {
         List<String> pic = await getsliderimage();
         setState(() {
+          if (kDebugMode) {
+            print('pic is $pic');
+          }
+
           img = pic;
         });
         if (rememberUser == true) {

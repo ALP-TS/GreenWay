@@ -129,7 +129,7 @@ class sliverbar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Welcome To \nRN Plus',
+                            'Welcome To \nGreenway',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,

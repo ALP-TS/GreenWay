@@ -8,9 +8,9 @@ import 'package:greenway_lms/others/constants.dart';
 class carousaldash extends StatelessWidget {
   carousaldash({super.key});
   final List<String> imageUrls = [
-    'assets/dashpage1 (1).jpg',
-    'assets/dashpage1 (1).jpg',
-    'assets/dashpage1 (1).jpg',
+    'assets/imageslider.jpg',
+    'assets/imageslider.jpg',
+    'assets/imageslider.jpg',
     // Add more image URLs as needed
   ];
 
@@ -39,12 +39,29 @@ class carousaldash extends StatelessWidget {
                     color: Colors.grey,
                     borderRadius: BorderRadius.circular(15)),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.network(
-                    url,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                    borderRadius: BorderRadius.circular(15),
+                    child: FadeInImage.assetNetwork(
+                      placeholder:
+                          'assets/imageslider.jpg', // Placeholder image path
+                      image: url, // URL of the image
+                      fit: BoxFit.cover,
+                      imageErrorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/imageslider.jpg', // Fallback asset image path
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+
+                    // Image.network(
+                    //   course['profile'],
+                    //   fit: BoxFit.cover,
+                    // ),
+                    ),
+                // Image.network(
+                //   url,
+                //   fit: BoxFit.cover,
+                // ),
               );
             },
           );
