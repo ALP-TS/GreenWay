@@ -59,12 +59,12 @@ class _LoginPageState extends State<LoginPage> {
           Padding(
             padding: const EdgeInsets.only(top: 50),
             child: Image(
-              image: AssetImage('assets/Rnlogo-removebg-preview (3).png'),
+              image: AssetImage(logo),
               height: 150,
             ),
           ),
           Text(
-            'Success Point Accademy',
+            Instittename,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           )
         ],
@@ -271,7 +271,7 @@ class _LoginPageState extends State<LoginPage> {
             print('$newdeviceid yy');
             // print(securemode);
             if (securemode == 'privent_m_l' || securemode == 'a_2d_s_n') {
-            // if (securemode == 'none') {
+              // if (securemode == 'none') {
               print('$deviceId nn');
               print('$newdeviceid yy');
               print(userId);

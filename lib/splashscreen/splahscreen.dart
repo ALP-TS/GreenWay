@@ -86,12 +86,15 @@ class splashscreenState extends State<splashscreen> {
     setState(() {
       appPackageName = packageName;
     });
-    print('AppName: $appName');
-    print('PackageName: $packageName');
-    // print('appPackageName:$appPackageName');
-    print('Version: $version');
-    print('BuildNumber: $buildNumber');
-    String? status = await checkupdate(version);
+    if (kDebugMode) {
+      print('AppName: $appName');
+
+      print('PackageName: $packageName');
+      // print('appPackageName:$appPackageName');
+      print('Version: $version');
+      print('BuildNumber: $buildNumber');
+    }
+    String? status = await checkupdate('1.01');
     if (status == 'hide') {
       var sharedpref = await SharedPreferences.getInstance();
       rememberUser = sharedpref.getBool(KEYLOGIN);

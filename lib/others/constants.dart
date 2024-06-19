@@ -108,4 +108,5 @@ Widget buildText(String text, Color textColor, double fontSize) {
   );
 }
 
-String logo = 'assets/rn--high-resolution-logo-transparent.png';
+String logo = 'assets/greenwaylogo.png';
+String Instittename = 'Greenway';

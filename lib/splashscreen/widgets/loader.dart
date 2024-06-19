@@ -3,6 +3,7 @@
 /// Dart 2.17
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:greenway_lms/colors.dart';
 
 class loader extends StatelessWidget {
   const loader({super.key});
@@ -11,21 +12,21 @@ class loader extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       SpinKitRotatingCircle(
-        color: Color.fromRGBO(21, 111, 161, 100),
+        color: AppColors.lmsorange,
         size: 15.0,
       ),
       SizedBox(
         width: 15,
       ),
       SpinKitRotatingCircle(
-        color: Color.fromRGBO(243, 110, 33, 100),
+        color: AppColors.lmsblue,
         size: 15.0,
       ),
       SizedBox(
         width: 15,
       ),
       SpinKitRotatingCircle(
-        color: Color.fromRGBO(21, 111, 161, 100),
+        color: AppColors.lmsorange,
         size: 15.0,
       ),
     ]);

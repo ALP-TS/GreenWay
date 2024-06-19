@@ -12,10 +12,10 @@ class UnbordingContent {
 }
 
 Color kgrey = Color.fromARGB(255, 220, 251, 255);
-Color kblue = Color.fromRGBO(14, 49, 121, 1); //logo color
+Color kblue = Colors.blue; //logo color
 Color kwhite = const Color(0xFFFFFFFF);
 Color kblack = const Color(0xFF000000);
-Color korange = Colors.orange; //logo color
+Color korange = Colors.green; //logo color
 List<UnbordingContent> contents = [
   UnbordingContent(
       title: ''
