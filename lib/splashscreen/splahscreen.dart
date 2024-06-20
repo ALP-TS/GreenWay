@@ -95,6 +95,7 @@ class splashscreenState extends State<splashscreen> {
       print('BuildNumber: $buildNumber');
     }
     String? status = await checkupdate('1.01');
+    print('status is $status');
     if (status == 'hide') {
       var sharedpref = await SharedPreferences.getInstance();
       rememberUser = sharedpref.getBool(KEYLOGIN);

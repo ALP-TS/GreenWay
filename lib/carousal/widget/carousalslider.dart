@@ -103,26 +103,30 @@ class _OnboardingState extends State<Onboarding> {
           const SizedBox(
             height: 50,
           ),
-          Text(
-            contents[index].title,
-            style: const TextStyle(
-              fontSize: 35,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          FadingText(text: contents[index].title,),
+          // BouncingText(),
+          // Text(
+          //   contents[index].title,
+          //   style: const TextStyle(
+          //     fontSize: 25,
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
           const SizedBox(height: 20),
           Text(
             contents[index].discription,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 14,
               color: Colors.grey,
             ),
           ),
-          Image.asset(
-            contents[index].image,
-            height: 300,
-          ),
+          // Fadingimg(text: contents[index].image,),
+          FadeInImageExample(url: contents[index].image,),
+          // Image.asset(
+          //   contents[index].image,
+          //   height: 300,
+          // ),
         ],
       ),
     );
@@ -197,6 +201,105 @@ class _OnboardingState extends State<Onboarding> {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+// ignore: must_be_immutable
+class FadingText extends StatefulWidget {
+  final String text;
+
+  FadingText({super.key, required this.text});
+  @override
+  _FadingTextState createState() => _FadingTextState();
+}
+
+class _FadingTextState extends State<FadingText> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+
+    _controller.forward();
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // Do something when the animation completes, if necessary
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
+      child: Text(
+        widget.text,
+        style: TextStyle(fontSize: 24, color: Colors.black),
+      ),
+    );
+  }
+}
+
+
+class FadeInImageExample extends StatefulWidget {
+  final String url;
+  FadeInImageExample({required this.url});
+  @override
+  _FadeInImageExampleState createState() => _FadeInImageExampleState();
+}
+
+class _FadeInImageExampleState extends State<FadeInImageExample> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _animation.value,
+          child: Image.asset(
+            widget.url, // Replace with your image asset path
+            height: 300,
+          ),
+        );
+      },
     );
   }
 }

@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               _buildGreyText("Username"),
               _buildInputField(usernameController),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
               _buildGreyText("Password"),
               _buildInputFieldpass(passwordController),
             ],
