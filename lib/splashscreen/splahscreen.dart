@@ -94,7 +94,7 @@ class splashscreenState extends State<splashscreen> {
       print('Version: $version');
       print('BuildNumber: $buildNumber');
     }
-    String? status = await checkupdate('1.01');
+    String? status = await checkupdate(version);
     print('status is $status');
     if (status == 'hide') {
       var sharedpref = await SharedPreferences.getInstance();
@@ -209,7 +209,9 @@ class splashscreenState extends State<splashscreen> {
   _openStoreAppPage(BuildContext context) async {
     // var playstoreUrl =
     // Uri.parse("market://details?id=");
-    var playstoreUrl = Uri.parse("market://details?id=$appPackageName");
+    var playstoreUrl = Uri.parse(
+        "https://play.google.com/store/apps/details?id=$appPackageName");
+    print('url is $playstoreUrl');
     try {
       await launchUrl(
         playstoreUrl,

@@ -18,7 +18,8 @@ Color kblack = const Color(0xFF000000);
 Color korange = Colors.green; //logo color
 List<UnbordingContent> contents = [
   UnbordingContent(
-      title: 'Empower your knowledge. Transform healthcare. Start learning today'
+      title:
+          'Welcome to the future of medical education. Your journey to excellence starts here'
       // 'Announcements'
       ,
       image: 'assets/welsli1.png',
@@ -26,7 +27,8 @@ List<UnbordingContent> contents = [
       // " Include a feature for broadcasting important announcements and alerts to the entire school community, ensuring that critical information reaches everyone."
       ),
   UnbordingContent(
-      title: 'Every step in your learning path brings us closer to a healthier world.'
+      title:
+          'Welcome to a community of learners and healers. Together, we achieve greatness.'
       // 'Instant Messaging:'
       ,
       image: 'assets/welsli2.png',
@@ -34,9 +36,10 @@ List<UnbordingContent> contents = [
       // " Provide a real-time messaging feature that allows users to send and receive messages instantly, fostering quick and efficient communication."
       ),
   UnbordingContent(
-      title: 'Knowledge is the best medicine. Start your educational journey with us today.',
+      title:
+          'Where learning meets compassion. Welcome to our medical education platform.',
       // 'Group Chats',
-      image: 'assets/slider3.jpeg',
+      image: 'assets/sli3.png',
       discription: ''
       // "Enable users to create and participate in group chats, making it easier for teachers to communicate with their classes or for students to collaborate on group projects."
       ),

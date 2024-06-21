@@ -6,6 +6,7 @@ import 'package:greenway_lms/carousal/caroualpage.dart';
 import 'package:greenway_lms/others/constants.dart';
 import 'package:greenway_lms/screen/course_listing_page.dart';
 import 'package:greenway_lms/screen/newcorsedetailpage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // import 'package:flutter/material.dart';
 
@@ -103,7 +104,9 @@ class _OnboardingState extends State<Onboarding> {
           const SizedBox(
             height: 50,
           ),
-          FadingText(text: contents[index].title,),
+          FadingText(
+            text: contents[index].title,
+          ),
           // BouncingText(),
           // Text(
           //   contents[index].title,
@@ -122,7 +125,9 @@ class _OnboardingState extends State<Onboarding> {
             ),
           ),
           // Fadingimg(text: contents[index].image,),
-          FadeInImageExample(url: contents[index].image,),
+          FadeInImageExample(
+            url: contents[index].image,
+          ),
           // Image.asset(
           //   contents[index].image,
           //   height: 300,
@@ -205,7 +210,6 @@ class _OnboardingState extends State<Onboarding> {
   }
 }
 
-
 // ignore: must_be_immutable
 class FadingText extends StatefulWidget {
   final String text;
@@ -215,7 +219,8 @@ class FadingText extends StatefulWidget {
   _FadingTextState createState() => _FadingTextState();
 }
 
-class _FadingTextState extends State<FadingText> with SingleTickerProviderStateMixin {
+class _FadingTextState extends State<FadingText>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -250,12 +255,11 @@ class _FadingTextState extends State<FadingText> with SingleTickerProviderStateM
       opacity: _animation,
       child: Text(
         widget.text,
-        style: TextStyle(fontSize: 24, color: Colors.black),
+        style: GoogleFonts.prociono(fontSize: 25),
       ),
     );
   }
 }
-
 
 class FadeInImageExample extends StatefulWidget {
   final String url;
@@ -264,7 +268,8 @@ class FadeInImageExample extends StatefulWidget {
   _FadeInImageExampleState createState() => _FadeInImageExampleState();
 }
 
-class _FadeInImageExampleState extends State<FadeInImageExample> with SingleTickerProviderStateMixin {
+class _FadeInImageExampleState extends State<FadeInImageExample>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 

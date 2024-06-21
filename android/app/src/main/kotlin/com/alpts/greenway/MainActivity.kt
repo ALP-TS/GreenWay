@@ -1,4 +1,4 @@
-package com.example.greenway_lms
+package com.alpts.greenway
 
 import io.flutter.embedding.android.FlutterActivity
 
