@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:greenway_lms/carousal/caroualpage.dart';
 import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
 // import 'package:greenway_lms/dashboard/dashboard.dart';
@@ -23,6 +24,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late Color myColor;
   late Size mediaSize;
+  bool tapped = false;
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -233,6 +235,10 @@ class _LoginPageState extends State<LoginPage> {
       height: 52,
       child: ElevatedButton(
         onPressed: () async {
+          if(tapped==false){
+            setState(() {
+            tapped = true;
+          });
           final _result = await login(usernameController.text.toString(),
               passwordController.text.toString());
           print(_result);
@@ -322,6 +328,8 @@ class _LoginPageState extends State<LoginPage> {
             showMessage(context, 'Invalid credentials');
             debugPrint("Invalid credentials");
           }
+          }
+          
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
@@ -329,7 +337,13 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: korange,
           shadowColor: myColor,
         ),
-        child: const Text("PROCEED"),
+        child:
+         tapped  ?const SpinKitFadingCircle(
+              color: Colors.blue,
+              size: 30.0,
+              // lineWidth: 3.0,
+            )
+         :const Text("PROCEED"),
       ),
     );
   }
