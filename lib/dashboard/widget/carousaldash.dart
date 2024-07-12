@@ -53,10 +53,7 @@ class carousaldash extends StatelessWidget {
                       },
                     )
 
-                    // Image.network(
-                    //   course['profile'],
-                    //   fit: BoxFit.cover,
-                    // ),
+                    
                     ),
                 // Image.network(
                 //   url,

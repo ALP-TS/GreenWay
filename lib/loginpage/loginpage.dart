@@ -238,12 +238,12 @@ class _LoginPageState extends State<LoginPage> {
           if(tapped==false){
             setState(() {
             tapped = true;
-          });
-          final _result = await login(usernameController.text.toString(),
+            });
+              final _result = await login(usernameController.text.toString(),
               passwordController.text.toString());
-          print(_result);
+             print(_result);
 
-          if (_result?.status == "success") {
+            if (_result?.status == "success") {
             setState(() {
               password_status = _result?.status;
               loginmessage = _result?.message;
@@ -324,10 +324,10 @@ class _LoginPageState extends State<LoginPage> {
             // final SharedPreferences sharedPreferences =
             //     (await SharedPreferences.getInstance) as SharedPreferences;
             // sharedPreferences.setString('email', usernameController.text);
-          } else {
+           } else {
             showMessage(context, 'Invalid credentials');
             debugPrint("Invalid credentials");
-          }
+           }
           }
           
         },
