@@ -593,12 +593,13 @@ Future<List<dynamic>> examresult(String userid, String examid) async {
   try {
     final response = await post(Uri.parse(URLS.viewexam),
         headers: headers, body: {'user_id': userid, 'examid': examid});
-    print(userid);
+    print('userid: $userid');
+    print('examid: $examid');
     if (response.statusCode == 200) {
-      // print('suji ');
+      print('suji ');
       // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
+      print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
@@ -607,6 +608,11 @@ Future<List<dynamic>> examresult(String userid, String examid) async {
         course_count = dataList.length.toInt();
         print(result.toString());
         List<dynamic> listOfLists = [dataList, result];
+        
+        print('suji ');
+
+
+        print('dataList[1]: ${dataList[1]}');
         return listOfLists;
       } else {
         throw Exception('Failed to fetch data: ${data['message']}');

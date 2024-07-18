@@ -141,13 +141,13 @@ class _tempState extends State<temp> {
     final _height = MediaQuery.of(context).size.height -
         MediaQuery.of(context).padding.top -
         kToolbarHeight;
-    print(ques['qns']);
+    // print(ques['qns']);
     print(widget.l);
     // int Time = int.parse(widget.time);
     // print(Time);
     print(widget.time);
     print('kkok');
-
+    print('exam is ${widget.exam}');
     return Scaffold(
       body: Stack(children: [
         Container(
@@ -162,8 +162,10 @@ class _tempState extends State<temp> {
             Container(
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(15)),
-              child: Center(
-                child: Text(
+              child:
+               Center(
+                child: 
+                Text(
                   'Question number: ${index + 1}/${widget.l}',
                   style: TextStyle(fontSize: 20),
                 ),
