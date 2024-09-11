@@ -45,7 +45,7 @@ class _dash_container1State extends State<dash_container1> {
                               color: Colors.white,
                               fontFamily: 'inter')),
                       Text(
-                        'Welcome to school',
+                        'Welcome to Greenway',
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,

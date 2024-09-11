@@ -410,7 +410,7 @@ Future<String?> deviceidupdate(String userid, deviceid) async {
       String data = bodyasjson['message'];
       return data;
     } else {
-      print('failed');
+      print('failed');  
     }
   } catch (e) {
     print(e.toString());
@@ -564,7 +564,9 @@ Future<List<Map<String, dynamic>>> getexam(String userid) async {
         headers: headers, body: {'user_id': userid});
     print(userid);
     print(URLS.getallexam);
+    print('code: ${response.statusCode}');
     if (response.statusCode == 200) {
+      print(response.body); 
       // print('suji ');
       // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);

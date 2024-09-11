@@ -239,7 +239,7 @@ class sliverbar extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.center,
                       child: buildText(
-                          'Our platform offers a wide range of features  to make your learning experience more enjoyable experience more enjoyable',
+                          'Our platform offers a wide range of features  to make your learning experience more enjoyable ',
                           Colors.black,
                           15),
                     ),

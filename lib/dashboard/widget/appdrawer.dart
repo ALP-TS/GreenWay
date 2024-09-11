@@ -12,9 +12,9 @@ class MyDrawer extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               child: Text(
-                'RN Plus Academy',
+                'Green way LMS',
                 style: TextStyle(color: Colors.white, fontSize: 20.0),
               ),
               decoration: BoxDecoration(

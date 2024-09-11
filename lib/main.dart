@@ -7,9 +7,13 @@ import 'dart:io';
 import 'package:greenway_lms/splashscreen/splahscreen.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 
-void main() {
+Future<void> main() async {
   HttpOverrides.global = new MyHttpOverrides();
-  preventScreenshots();
+  // preventScreenshots();
+    WidgetsFlutterBinding.ensureInitialized();
+  
+  // Disable screenshots
+  await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
   runApp(const MyApp());
 }
 

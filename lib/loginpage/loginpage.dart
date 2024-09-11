@@ -284,6 +284,35 @@ class _LoginPageState extends State<LoginPage> {
               print('pk');
               if (deviceId == '' || deviceId == null) {
                 String? update = await deviceidupdate(userId!, newdeviceid);
+                print('updated $update');
+                setState(() {
+                  tapped = false;
+                });
+                if (update == 'something worng for insertion') {
+                  showMessage(
+                      context, 'Your device is already login with other account,Yourdevide id is $newdeviceid');
+                }else if(update =="Data insert Successfully"){
+                  var sharedPref = await SharedPreferences.getInstance();
+
+                  sharedPref.setBool(KEYLOGIN, true);
+
+                  sharedPref.setString(id, studentId!);
+                  sharedPref.setString(usrid, userId!);
+                  sharedPref.setString(Dceid, newdeviceid!);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            navigationbar()), // MaterialPageRoute(builder: (context) => navigationbar()),
+                  );
+
+                }else{
+                  showMessage(
+                      context, 'Server Error Please try again Later');
+                  
+
+                }
+                
                 print('uooooppdatttd$update');
                 print(newdeviceid);
               } else {
@@ -304,6 +333,9 @@ class _LoginPageState extends State<LoginPage> {
                             navigationbar()), // MaterialPageRoute(builder: (context) => navigationbar()),
                   );
                 } else {
+                  setState(() {
+                    tapped = false;
+                  });
                   showMessage(
                       context, 'please login with your previous device');
                 }
@@ -325,6 +357,9 @@ class _LoginPageState extends State<LoginPage> {
             //     (await SharedPreferences.getInstance) as SharedPreferences;
             // sharedPreferences.setString('email', usernameController.text);
            } else {
+            setState(() {
+              tapped = false;
+            });
             showMessage(context, 'Invalid credentials');
             debugPrint("Invalid credentials");
            }
