@@ -21,7 +21,7 @@ String? student;
 String? specification;
 String? utype;
 DateTime? today;
-String? baseurl = 'https://4lms.alp-ts.in/greenway/api';
+String? baseurl = 'https://lms.coursenrich.com/greenway/api';
 LinearGradient myGradient = LinearGradient(
   colors: [
     Color.fromRGBO(25, 137, 223, 0.887),
