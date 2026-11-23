@@ -1,6 +1,6 @@
 {
-    "name": "greenway_lms",
-    "short_name": "greenway_lms",
+    "name": "greenway",
+    "short_name": "greenway",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

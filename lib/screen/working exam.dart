@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/countdowntimer.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/countdowntimer.dart';
 
 class temp extends StatefulWidget {
   final List<Map<String, dynamic>> exam;
@@ -29,33 +29,7 @@ class _tempState extends State<temp> {
     setState(() {
       timerFinished = finished;
     });
-    // Do something with the variable `timerFinished` when the timer finishes
   }
-
-  // int l=
-
-  // Future<void> _handleNextButtonPressed(String examid) async {
-  //   // ignore: unnecessary_null_comparison
-  //   if (_selectedAnswer != null) {
-  //     String option = _selectedAnswer!.substring(0, 1);
-  //     String status = await nextques(
-  //       userId!,
-  //     );
-  //     // Increase index
-  //     setState(() {
-  //       index++;
-  //       if (index > widget.l) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => examcomplete()),
-  //         );
-  //       }
-  //     }); // Removing the prefix
-  //     print('Selected option: $option');
-  //   } else {
-  //     print('No option selected');
-  //   }
-  // }
 
   void _handleClearButtonPressed() {
     setState(() {
@@ -92,15 +66,12 @@ class _tempState extends State<temp> {
       );
     }
     Map<String, dynamic> ques = widget.exam[index];
-    // String? _selectedAnswer;
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height -
         MediaQuery.of(context).padding.top -
         kToolbarHeight;
     print(ques['qns']);
     print(widget.l);
-    // int Time = int.parse(widget.time);
-    // print(Time);
     print(widget.time);
     print('kkok');
 
@@ -133,10 +104,6 @@ class _tempState extends State<temp> {
             )
           ]),
         ),
-        // Positioned(
-        //     left: _width * 0.6,
-        //     top: _height * 0.1,
-        //     child: CountdownTimer()), // Use the CountdownTimer widget here
         Positioned(
           bottom: 0,
           left: 0,
@@ -163,14 +130,6 @@ class _tempState extends State<temp> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       width: double.infinity,
                       height: 100,
@@ -187,7 +146,6 @@ class _tempState extends State<temp> {
                     SizedBox(
                       height: 10,
                     ),
-                    // Row(children: [
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -195,20 +153,10 @@ class _tempState extends State<temp> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       height: 50,
                       width: double.infinity,
                       child: RadioListTile(
-                        // selectedTileColor: Colors.amber,
-                        // activeColor: Colors.yellow,
                         title: Text('A.${ques['optiona']}'),
                         value: 'A',
                         groupValue: _selectedAnswer,
@@ -229,14 +177,6 @@ class _tempState extends State<temp> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       height: 50,
                       width: double.infinity,
@@ -251,7 +191,6 @@ class _tempState extends State<temp> {
                         },
                       ),
                     ),
-                    // ]),
                     SizedBox(
                       height: 10,
                     ),
@@ -262,14 +201,6 @@ class _tempState extends State<temp> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       height: 50,
                       width: double.infinity,
@@ -294,14 +225,6 @@ class _tempState extends State<temp> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       height: 50,
                       width: double.infinity,
@@ -326,14 +249,6 @@ class _tempState extends State<temp> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                       ),
                       height: 50,
                       width: double.infinity,
@@ -361,64 +276,35 @@ class _tempState extends State<temp> {
             right: 0,
             height: 100,
             child: Container(
-              // width: 100,
               color: Colors.grey[100],
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // SizedBox(width: 10),
                   Container(
                     width: _width * 0.3,
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                         borderRadius: BorderRadius.circular(10)),
                     child: TextButton(
                       onPressed: _handleClearButtonPressed,
                       child: Text('Clear'),
                     ),
                   ),
-                  // SizedBox(
-                  //   height: 10,
-                  // ),
                   Container(
                     width: _width * 0.3,
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                         borderRadius: BorderRadius.circular(10)),
                     child: TextButton(
                       onPressed: () async {
                         String status = await nextques(
                           ques['id'],
-                          // 'option$option',
                           '0',
                           widget.examid,
                           userId!,
                         );
                         setState(() {
                           index++;
-                          // if (index > widget.l) {
-                          //   Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => examcomplete()),
-                          //   );
-                          // }
                         });
                       },
                       child: Text('Skip'),
@@ -428,14 +314,6 @@ class _tempState extends State<temp> {
                     width: _width * 0.3,
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.grey.withOpacity(0.5),
-                        //     spreadRadius: 5,
-                        //     blurRadius: 7,
-                        //     offset: Offset(0, 3), // changes position of shadow
-                        //   ),
-                        // ],
                         borderRadius: BorderRadius.circular(10)),
                     child: TextButton(
                       onPressed: () async {
@@ -455,13 +333,6 @@ class _tempState extends State<temp> {
                           // Increase index
                           setState(() {
                             index++;
-                            // if (index > widget.l) {
-                            //   Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => examcomplete()),
-                            //   );
-                            // }
                           }); // Removing the prefix
                           print('Selected option: $option');
                         } else {
@@ -478,8 +349,6 @@ class _tempState extends State<temp> {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
 
 class SubmitButtonAnimation extends StatefulWidget {
   @override

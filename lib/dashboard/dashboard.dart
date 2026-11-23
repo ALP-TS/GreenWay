@@ -1,24 +1,13 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-// import 'package:get/get.dart';
-// import 'package:lms/Profilepage/profile.dart';
-// import 'package:lms/carousal/caroualpage.dart';
-import 'package:greenway_lms/dashboard/widget/appdrawer.dart';
-// import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-// import 'package:greenway_lms/carousal/caroualpage.dart';
-// import 'package:greenway_lms/dashboard/widget/appdrawer.dart';
-import 'package:circular_chart_flutter/circular_chart_flutter.dart';
-import 'package:greenway_lms/dashboard/widget/carousaldash.dart';
-import 'package:greenway_lms/dashboard/widget/dashcontainer1.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/data.dart/feestatusmodel/feestatusmodel.dart';
-// import 'package:greenway_lms/data.dart/loginmodel/loginmodel.dart';
-import 'package:greenway_lms/data.dart/studentdetailsmodel/studentdetailsmodel.dart';
-// import 'package:greenway_lms/loginpage/loginpage.dart';
-// import 'package:greenway_lms/nointernet/check_conection.dart';
-import 'package:greenway_lms/others/constants.dart';
-// import 'package:MCJ/screen/course_listing_page.dart';
+import 'package:greenway/dashboard/widget/appdrawer.dart';
+import 'package:greenway/dashboard/widget/dashcontainer1.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/data.dart/feestatusmodel/feestatusmodel.dart';
+import 'package:greenway/data.dart/studentdetailsmodel/studentdetailsmodel.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_actions.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class dashboard extends StatefulWidget {
   const dashboard({super.key});
@@ -28,432 +17,317 @@ class dashboard extends StatefulWidget {
 }
 
 class _dashboardState extends State<dashboard> {
+  late Future<Feestatusmodel?> _feeFuture;
+  int _refreshKey = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _feeFuture = _loadFee();
+  }
+
+  Future<Feestatusmodel?> _loadFee() async {
+    if (userId == null) return null;
+    final result = await fee_status(userId!);
+    final s = result?.data?.status;
+    if (s != null) feestatus = s;
+    return result;
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _feeFuture = _loadFee();
+      _refreshKey++;
+    });
+    await _feeFuture;
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool iscondition = false;
-    // bool logout = false;
+    final iscondition = rememberUser == true && studentId != null;
 
-    if (rememberUser == true) {
-      iscondition = true;
-    }
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-                padding: EdgeInsets.all(10),
-                child: FutureBuilder<Feestatusmodel?>(
-                    future: fee_status(userId!),
-                    builder: (context, snapshot2) {
-                      if (snapshot2.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot2.hasError) {
-                        return Text('Error: ${snapshot2.error}');
-                      } else {
-                        Feestatusmodel? result2 = snapshot2.data;
-                        feestatus = result2!.data?.status;
-                        return feestatus_indicater();
-                      }
-                    })),
+      appBar: gradientAppBar(
+        'Dashboard',
+        actions: [
+          IconButton(
+            tooltip: 'Notifications',
+            icon: const Icon(Icons.notifications_none_rounded),
+            onPressed: () => homeTab.value = kTabNotifications,
           ),
-          decoration: BoxDecoration(
-            gradient: myGradient,
-          ),
-        ),
+          const SizedBox(width: 4),
+        ],
       ),
-      drawer: MyDrawer(),
-      // bottomNavigationBar: navigationbar(),
+      drawer: const MyDrawer(),
       body: iscondition
-          ? FutureBuilder<Studentdetailsmodel?>(
-              future: loginalready(studentId!),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.data}');
-                } else if (snapshot.hasData) {
-                  Studentdetailsmodel? result = snapshot.data;
-
-                  password_status = result?.status;
-                  loginmessage = result?.message;
-                  studentId = result?.data?.studentId;
-                  userId = result?.data?.userId;
-                  classId = result?.data?.classId;
-                  stuname = result?.data?.name;
-                  phone = result?.data?.phone;
-                  expireDate = result?.data?.expireDate;
-                  seenVideo = result?.data?.seenVideo;
-                  ip = result?.data?.ip;
-                  deviceId = result?.data?.deviceId;
-                  status = result?.data?.status;
-                  // utype = result?.data?.utype;
-
-                  return Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      // color: Colors.amber,
-                      image: DecorationImage(
-                          image: AssetImage('assets/backgroundlms.jpg'),
-                          fit: BoxFit.cover),
-                    ),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          container1(),
-                          SizedBox(
-                            height: _height * 0.02,
-                          ),
-                          carousaldash(),
-                          bottem_container()
-                        ]),
-                  );
-                } else {
-                  // print(snapshot);
-                  return Center(
-                    child: Image.asset(
-                        'assets/no_data_found-removebg-preview (1) (1).png'),
-                  );
-                }
+          ? AsyncView<Studentdetailsmodel?>(
+              key: ValueKey('student-$_refreshKey'),
+              load: () => loginalready(studentId!),
+              isEmpty: (r) => r?.data == null,
+              emptyIcon: Icons.person_off_outlined,
+              emptyTitle: 'Couldn\'t load your profile',
+              emptyMessage:
+                  'We were unable to fetch your account details. Please try again.',
+              builder: (context, result, reload) {
+                password_status = result?.status;
+                loginmessage = result?.message;
+                studentId = result?.data?.studentId;
+                userId = result?.data?.userId;
+                classId = result?.data?.classId;
+                stuname = result?.data?.name;
+                phone = result?.data?.phone;
+                expireDate = result?.data?.expireDate;
+                seenVideo = result?.data?.seenVideo;
+                ip = result?.data?.ip;
+                deviceId = result?.data?.deviceId;
+                status = result?.data?.status;
+                return _content();
               },
             )
-          : Container(
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/backgroundlms.jpg'),
-                      fit: BoxFit.cover)),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    container1(),
-                    SizedBox(
-                      height: _height * 0.02,
-                    ),
-                    carousaldash(),
-                    bottem_container(),
-                  ]),
-            ),
+          : _content(),
     );
   }
 
-  Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
+  Widget _content() {
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          FutureBuilder<Feestatusmodel?>(
+            future: _feeFuture,
+            builder: (context, snap) => dash_container1(
+              feeLoading: snap.connectionState != ConnectionState.done,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Brand.gutter),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SectionHeader('Your progress'),
+                coursedetails(key: ValueKey('progress-$_refreshKey')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
+/// Kept for compatibility; the header now lives in [dash_container1].
 class container1 extends StatelessWidget {
   const container1({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
-    return Stack(
-      children: [
-        // flex: 3,
-        Container(
-            child: dash_container1(),
-            height: _height * 0.25,
-            decoration: BoxDecoration(gradient: myGradient)),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => const dash_container1();
 }
 
 Widget bottem_container() {
-  return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: SizedBox(
-              height: 30,
-              child: Text(
-                'Information',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
-              )),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 15, right: 15, top: 15),
-          child: coursedetails(),
-        ),
-      ]);
+  return const Padding(
+    padding: EdgeInsets.all(Brand.gutter),
+    child: coursedetails(),
+  );
 }
 
 class coursedetails extends StatelessWidget {
   const coursedetails({super.key});
 
+  int _toInt(dynamic v) => int.tryParse('${v ?? 0}') ?? 0;
+
   @override
   Widget build(BuildContext context) {
-    // print(studentId);
-    // print(student_Id);
-    // print(classId);
-    return FutureBuilder<List<Map<String, dynamic>>>(
-        future: courseprogress(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-                child: Column(children: [
-              SingleChildScrollView(
-                  child: Container(
-                      child: Column(children: [
-                Text(
-                  'Error: ${snapshot}',
-                  style: TextStyle(fontSize: 4),
-                ),
-              ]))),
-              // Text(Response())
-              // Text('its a server error')
-            ]));
-          } else if (snapshot.hasData) {
-            List<Map<String, dynamic>> course =
-                snapshot.data as List<Map<String, dynamic>>;
-            Map<String, dynamic> courseData = course[0];
-            int totalvideo;
-            int totalaudio;
-            int totalnotes;
-            if (courseData['video'] == 0) {
-              totalvideo = 1;
-            } else {
-              totalvideo = courseData['video'];
-            }
-            if (courseData['audio'] == 0) {
-              totalaudio = 1;
-            } else {
-              totalaudio = courseData['audio'];
-            }
-            if (courseData['notes'] == 0) {
-              totalnotes = 1;
-            } else {
-              totalnotes = courseData['notes'];
-            }
+    return AsyncView<List<Map<String, dynamic>>>(
+      load: courseprogress,
+      compact: true,
+      errorAsEmpty: true,
+      emptyIcon: Icons.insights_outlined,
+      emptyTitle: 'No progress yet',
+      emptyMessage:
+          'Start watching videos, listening to audio and reading notes to see your progress here.',
+      builder: (context, course, reload) {
+        final c = course.first;
+        final items = [
+          _ProgressItem('Videos', Icons.play_circle_fill_rounded, Brand.primary,
+              _toInt(c['seen_video']), _toInt(c['video'])),
+          _ProgressItem('Audio', Icons.headphones_rounded, Brand.accent,
+              _toInt(c['seen_audio']), _toInt(c['audio'])),
+          _ProgressItem('Notes', Icons.description_rounded, Brand.warning,
+              _toInt(c['seen_notes']), _toInt(c['notes'])),
+        ];
+        final total = items.fold<int>(0, (s, i) => s + i.total);
+        final done =
+            items.fold<int>(0, (s, i) => s + i.done.clamp(0, i.total));
+        final overall = total == 0 ? 0.0 : done / total;
 
-            int seennotes = courseData['seen_notes'];
-            int seenvideo = courseData['seen_video'];
-            int seenaudio = courseData['seen_audio'];
-            final _width = MediaQuery.of(context).size.width;
-            final _height = MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                kToolbarHeight;
-            print(totalnotes);
-            print(seennotes);
-            print(course);
-
-            return Column(children: [
-              Container(
-                width: double.infinity,
-                height: _height * 0.25,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30)),
-                child: Column(
+        return Appear(
+          child: AppCard(
+            animate: false,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
                   children: [
+                    _Ring(value: overall),
+                    const SizedBox(width: 18),
                     Expanded(
-                      flex: 1,
-                      child: Container(
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/courseicon.png',
-                                cacheHeight: 50),
-                            Expanded(
-                              child: Container(
-                                child: Text(
-                                  courseData['class'],
-                                  maxLines: 2,
-                                  style: TextStyle(
-                                      overflow: TextOverflow.ellipsis,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Current course',
+                              style: TextStyle(
+                                  fontSize: 12, color: Brand.textMuted)),
+                          const SizedBox(height: 2),
+                          Text(
+                            clean(c['class'], 'Your course'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                height: 1.25),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '$done of $total lessons completed',
+                            style: const TextStyle(
+                                fontSize: 13, color: Brand.textMuted),
+                          ),
+                        ],
                       ),
                     ),
-                    // Padding(
-                    //   padding: EdgeInsets.all(3),
-                    //   child: Divider(
-                    //     thickness: 2,
-                    //     color: Colors.black,
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   height: 20,
-                    // ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            processindicater(
-                              label: 'Video',
-                              total: totalvideo.toDouble(),
-                              completed: seenvideo.toDouble(),
-                              // total: 10,
-                              // completed: 5,
-                            ),
-                            // Padding(
-                            //     padding: EdgeInsets.all(3),
-                            //     child: VerticalDivider(
-                            //         thickness: 2, color: Colors.black)),
-                            processindicater(
-                              label: 'Audio',
-                              total: totalaudio.toDouble(),
-                              completed: seenaudio.toDouble(),
-                              // total: 1,
-                              // completed: 0,
-                            ),
-                            // Padding(
-                            //     padding: EdgeInsets.all(3),
-                            //     child: VerticalDivider(
-                            //         thickness: 2, color: Colors.black)),
-                            processindicater(
-                              label: 'Notes',
-                              total: totalnotes.toDouble(),
-                              completed: seennotes.toDouble(),
-                              // total: 10,
-                              // completed: 5,
-                            )
-                          ],
-                        ),
-                      ),
-                    )
                   ],
                 ),
-              ),
-              SizedBox(
-                height: _height * 0.02,
-              )
-            ]);
-          } else {
-            return const Center(
-              child: Text('data'),
-            );
-          }
-        });
+                const SizedBox(height: 20),
+                for (final item in items) _ProgressBar(item: item),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
-class processindicater extends StatelessWidget {
-  processindicater(
-      {super.key,
-      required this.label,
-      required this.total,
-      required this.completed});
-  final GlobalKey<AnimatedCircularChartState> _chartKey =
-      new GlobalKey<AnimatedCircularChartState>();
-  final label;
-  double total;
-  double completed;
+class _ProgressItem {
+  const _ProgressItem(this.label, this.icon, this.color, this.done, this.total);
+  final String label;
+  final IconData icon;
+  final Color color;
+  final int done;
+  final int total;
+}
+
+class _Ring extends StatelessWidget {
+  const _Ring({required this.value});
+  final double value;
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
-    // print(total);
-    // print(total);
-    double balance = total - completed;
-    // print('$total total');
-    // print('$completed com');
-    double percent = ((completed / total) * 100);
-    String percentage = percent.toStringAsFixed(2);
-    // print('helooooo');
-    // print(balance);
-    return Column(children: [
-      Text(label),
-      AnimatedCircularChart(
-        duration: Duration(seconds: 1),
-        key: _chartKey,
-        size: Size(_width * 0.2, _width * 0.2),
-        initialChartData: <CircularStackEntry>[
-          CircularStackEntry(
-            <CircularSegmentEntry>[
-              CircularSegmentEntry(
-                completed,
-                Colors.blue[400],
-                rankKey: 'completed',
+    return SizedBox(
+      width: 76,
+      height: 76,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: value),
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeOutCubic,
+        builder: (context, v, _) => Stack(
+          fit: StackFit.expand,
+          children: [
+            CircularProgressIndicator(
+              value: 1,
+              strokeWidth: 8,
+              color: Brand.primaryLight,
+            ),
+            CircularProgressIndicator(
+              value: v,
+              strokeWidth: 8,
+              strokeCap: StrokeCap.round,
+              color: Brand.primary,
+            ),
+            Center(
+              child: Text(
+                '${(v * 100).round()}%',
+                style: const TextStyle(
+                    fontSize: 17, fontWeight: FontWeight.w800),
               ),
-              CircularSegmentEntry(
-                balance,
-                Colors.blueGrey[600],
-                rankKey: 'remaining',
-              ),
-            ],
-            rankKey: 'progress',
-          ),
-        ],
-        chartType: CircularChartType.Radial,
-        edgeStyle: SegmentEdgeStyle.round, holeLabel: '$percentage%',
-        percentageValues: false,
-        // startAngle: 0,
+            ),
+          ],
+        ),
       ),
-    ]);
+    );
   }
 }
 
-class feestatus_indicater extends StatefulWidget {
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar({required this.item});
+  final _ProgressItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final done = item.done.clamp(0, item.total);
+    final value = item.total == 0 ? 0.0 : done / item.total;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        children: [
+          IconBadge(icon: item.icon, color: item.color, size: 36),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(item.label,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                    ),
+                    Text('$done/${item.total}',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Brand.textMuted)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: value),
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, v, _) => ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: v,
+                      minHeight: 8,
+                      color: item.color,
+                      backgroundColor: item.color.withValues(alpha: 0.12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small status pill (kept for any external use).
+class feestatus_indicater extends StatelessWidget {
   const feestatus_indicater({super.key});
 
   @override
-  State<feestatus_indicater> createState() => _feestatus_indicaterState();
-}
-
-class _feestatus_indicaterState extends State<feestatus_indicater> {
-  @override
   Widget build(BuildContext context) {
-    Color? backgroundColor;
-    String? data;
-    setState(() {
-      if (feestatus == 'active') {
-        backgroundColor = Colors.green;
-        data = 'active';
-      } else {
-        backgroundColor = Colors.red;
-        data = 'Inactive ';
-      }
-    });
-
-    return GestureDetector(
-      onTap: () {
-        final snackBar = SnackBar(
-          content: Text('your subscription is $data'),
-          duration: Duration(seconds: 3), // Optional: Set the duration
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              // Perform an action when the SnackBar's action button is pressed
-              print('SnackBar action button pressed');
-            },
-          ),
-        );
-
-        // Find the Scaffold in the widget tree and show the SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      },
-      child: CircleAvatar(
-          backgroundColor: backgroundColor,
-          radius: 20,
-          child: CircleAvatar(
-            radius: 17,
-          )),
+    final active = feestatus == 'active';
+    return StatusChip(
+      label: active ? 'Active' : 'Inactive',
+      color: active ? Brand.accent : Brand.danger,
     );
   }
 }

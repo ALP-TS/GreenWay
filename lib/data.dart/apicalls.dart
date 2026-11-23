@@ -1,26 +1,41 @@
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:js';
 
-// import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:device_info/device_info.dart';
+import 'package:android_id/android_id.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:greenway_lms/data.dart/coursedetailsindivitual/coursedetailsindivitual.dart';
-import 'package:greenway_lms/data.dart/feestatusmodel/feestatusmodel.dart';
-import 'package:greenway_lms/data.dart/getsubjectmodel/datum.dart';
+import 'package:greenway/data.dart/coursedetailsindivitual/coursedetailsindivitual.dart';
+import 'package:greenway/data.dart/feestatusmodel/feestatusmodel.dart';
+import 'package:greenway/data.dart/getsubjectmodel/datum.dart';
 
-import 'package:greenway_lms/data.dart/loginmodel/loginmodel.dart';
-import 'package:greenway_lms/data.dart/studentdetailsmodel/studentdetailsmodel.dart';
-import 'package:greenway_lms/data.dart/topiclistingmodel/datum.dart';
+import 'package:greenway/data.dart/loginmodel/loginmodel.dart';
+import 'package:greenway/data.dart/studentdetailsmodel/studentdetailsmodel.dart';
+import 'package:greenway/data.dart/topiclistingmodel/datum.dart';
 
-import 'package:greenway_lms/data.dart/urls.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/data.dart/urls.dart';
+import 'package:greenway/others/constants.dart';
 
 Map<String, String> headers = {
-  // 'Content-Type': 'application/json',
   'API-Key': apiKey, // Assuming your API key is passed as a Bearer token
 };
+
+/// Debug-only log of an API call: endpoint, fields sent, status and full body.
+/// Prints nothing in release builds.
+void logApi(String name, Map<String, Object?> sent, Response response) {
+  if (!kDebugMode) return;
+  debugPrint('┌── API $name  [HTTP ${response.statusCode}]');
+  debugPrint('│ sent: $sent');
+  String body = response.body;
+  try {
+    body = const JsonEncoder.withIndent('  ').convert(jsonDecode(body));
+  } catch (_) {}
+  for (final line in body.split('\n')) {
+    debugPrint('│ $line', wrapWidth: 900);
+  }
+  debugPrint('└── end $name');
+}
 
 Future<Loginmodel?> login(String email, password) async {
   try {
@@ -41,11 +56,6 @@ Future<Loginmodel?> login(String email, password) async {
 }
 
 Future<List<String>> getsliderimage() async {
-  // List<String> img = [
-  //   'https://4lms.alp-ts.in/demov2/assets/images/1675763400.jpg',
-  //   'https://4lms.alp-ts.in/demov2/assets/images/1675763400.jpg',
-  //   'https://4lms.alp-ts.in/demov2/assets/images/1675763400.jpg'
-  // ];
   try {
     final response = await get(
       Uri.parse(URLS.sliderimage),
@@ -57,15 +67,11 @@ Future<List<String>> getsliderimage() async {
       if (data['status'] == 'success') {
         Map<String, dynamic> dataList =
             Map<String, dynamic>.from(data['data']['slider_img']);
-        // if (dataList['0'] != null &&
-        //     dataList['1'] != null &&
-        //     dataList['2'] != null) {
         List<String> img = [
           dataList['0'],
           dataList['1'],
           dataList['2'],
         ];
-        // } else {}
 
         print(img.toString());
 
@@ -111,12 +117,9 @@ Future<Feestatusmodel?> fee_status(
     );
     print('${response.statusCode}uuuuuuuuu');
     print(response);
-    // _showDialog(BuildContext context)
     if (response.statusCode == 200) {
       final bodyasjson = jsonDecode(response.body) as Map<String, dynamic>;
       final data = Feestatusmodel.fromJson(bodyasjson);
-      // print('');
-      // if(){}
       return data;
     } else {
       print('failed');
@@ -126,27 +129,6 @@ Future<Feestatusmodel?> fee_status(
   }
   return null;
 }
-// void _showDialog(BuildContext context) {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text('Alert'),
-//         content: Text('You were blocked by admin'),
-//         actions: <Widget>[
-//           Row(children: [
-//             ElevatedButton(
-//               onPressed: () {
-//                 exit(0); // Close the dialog
-//               },
-//               child: Text('Close'),
-//             ),
-//           ]),
-//         ],
-//       );
-//     },
-//   );
-// }
 
 Future<List<Map<String, dynamic>>> getallcourse() async {
   // Replace with your actual API endpoint
@@ -186,7 +168,6 @@ Future<Coursedetailsindivitual?> courseindivitual(List id) async {
     );
     print(id);
     print(URLS.getonecourse);
-    // print(result.body.toString());
     if (result.statusCode == 200) {
       final bodyasjson = jsonDecode(result.body) as Map<String, dynamic>;
       final data = Coursedetailsindivitual.fromJson(bodyasjson);
@@ -236,7 +217,6 @@ Future<List<Map<String, dynamic>>> randomcourse() async {
   );
   if (response.statusCode == 200) {
     final jsonData = json.decode(response.body);
-    // print(jsonData['data'].toString());
     final List<dynamic> data = jsonData['data'];
     return List<Map<String, dynamic>>.from(
         data.map((item) => Map<String, dynamic>.from(item)));
@@ -246,7 +226,6 @@ Future<List<Map<String, dynamic>>> randomcourse() async {
 }
 
 Future<List<Datum>> getsubjects(String id) async {
-  // String id = '45';
   final response = await get(
     Uri.parse(URLS.getsubjects + '$id' + URLS.getsubject2),
     headers: headers,
@@ -298,7 +277,6 @@ Future<List<Map<String, dynamic>>> getallvideos(String topicid) async {
       print('suji ');
       print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
@@ -313,7 +291,6 @@ Future<List<Map<String, dynamic>>> getallvideos(String topicid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -329,7 +306,6 @@ Future<List<Map<String, dynamic>>> getallpdf(String topicid) async {
       print('suji ');
       print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
@@ -344,7 +320,6 @@ Future<List<Map<String, dynamic>>> getallpdf(String topicid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -357,10 +332,7 @@ Future<List<Map<String, dynamic>>> getallaudio(String topicid) async {
     );
     print(topicid);
     if (response.statusCode == 200) {
-      // print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
@@ -375,7 +347,6 @@ Future<List<Map<String, dynamic>>> getallaudio(String topicid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -385,11 +356,10 @@ Future<String> getDeviceId() async {
 
   try {
     if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-      deviceId = androidInfo.androidId; // Android ID
+      deviceId = await const AndroidId().getId() ?? '';
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await DeviceInfoPlugin().iosInfo;
-      deviceId = iosInfo.identifierForVendor; // iOS ID
+      deviceId = iosInfo.identifierForVendor ?? ''; // iOS ID
     }
   } catch (e) {
     print("Error getting device ID: $e");
@@ -402,15 +372,14 @@ Future<String?> deviceidupdate(String userid, deviceid) async {
   try {
     final response = await post(Uri.parse(URLS.deviceid),
         headers: headers, body: {'user_id': userid, 'device_id': deviceid});
-    print(userid);
+    print('store_device_id user=$userid device=$deviceid '
+        'status=${response.statusCode} body=${response.body}');
 
     if (response.statusCode == 200) {
       final bodyasjson = json.decode(response.body) as Map<String, dynamic>;
-      print(bodyasjson);
-      String data = bodyasjson['message'];
-      return data;
+      return bodyasjson['message']?.toString();
     } else {
-      print('failed');  
+      return 'HTTP ${response.statusCode}';
     }
   } catch (e) {
     print(e.toString());
@@ -431,7 +400,6 @@ Future<String> getsecuremod() async {
         Map<String, dynamic> innerdata =
             Map<String, dynamic>.from(data['data']);
         securemod = innerdata['secure_mod'];
-        // print(securemod);
       }
     } else {
       throw Exception('Failed to fetch data: ${response.reasonPhrase}');
@@ -482,16 +450,10 @@ Future<List<Map<String, dynamic>>> courseprogress() async {
     print('${response.headers['location']}');
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
-      // print(data['data']);
 
       if (data['status'] == 'success') {
-        // print(data['status']);
         List<Map<String, dynamic>> result =
             List<Map<String, dynamic>>.from(data['data']);
-        // course_count = dataList.length.toInt();
-        // print(result);
-        // print(data['status']);
 
         return result;
       } else {
@@ -514,10 +476,8 @@ Future<List<String>> coursecategory() async {
   if (response.statusCode == 200) {
     final Map<String, dynamic> jsonResponse = json.decode(response.body);
     if (jsonResponse['status'] == 'success') {
-      // If the status is 'success', return the data as a List<String>
       final List<dynamic> data = jsonResponse['data'];
       final List<String> result = List<String>.from(data);
-      // print(result);
 
       return result;
     } else {
@@ -544,7 +504,6 @@ Future<List<Map<String, dynamic>>> categorycourse(name) async {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
         course_count = dataList.length.toInt();
-        // print(dataList);
 
         return dataList;
       } else {
@@ -562,20 +521,13 @@ Future<List<Map<String, dynamic>>> getexam(String userid) async {
   try {
     final response = await post(Uri.parse(URLS.getallexam),
         headers: headers, body: {'user_id': userid});
-    print(userid);
-    print(URLS.getallexam);
-    print('code: ${response.statusCode}');
+    logApi('view_exam_list', {'user_id': userid}, response);
     if (response.statusCode == 200) {
-      print(response.body); 
-      // print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
         course_count = dataList.length.toInt();
-        // print(dataList.toString());
         return dataList;
       } else {
         throw Exception('Failed to fetch data: ${data['message']}');
@@ -586,7 +538,6 @@ Future<List<Map<String, dynamic>>> getexam(String userid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -595,11 +546,8 @@ Future<List<dynamic>> examresult(String userid, String examid) async {
   try {
     final response = await post(Uri.parse(URLS.viewexam),
         headers: headers, body: {'user_id': userid, 'examid': examid});
-    print('userid: $userid');
-    print('examid: $examid');
+    logApi('exam_result', {'user_id': userid, 'examid': examid}, response);
     if (response.statusCode == 200) {
-      print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
       print(data['status']);
       if (data['status'] == 'success') {
@@ -611,10 +559,6 @@ Future<List<dynamic>> examresult(String userid, String examid) async {
         print(result.toString());
         List<dynamic> listOfLists = [dataList, result];
         
-        print('suji ');
-
-
-        print('dataList[1]: ${dataList[1]}');
         return listOfLists;
       } else {
         throw Exception('Failed to fetch data: ${data['message']}');
@@ -625,7 +569,6 @@ Future<List<dynamic>> examresult(String userid, String examid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -634,18 +577,14 @@ Future<List<dynamic>> startexam(String userid, String examid) async {
   try {
     final response = await post(Uri.parse(URLS.startexam),
         headers: headers, body: {'user_id': userid, 'examid': examid});
-    print(userid);
+    logApi('exam_start', {'user_id': userid, 'examid': examid}, response);
     if (response.statusCode == 200) {
-      // print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
         Map<String, dynamic> exam = Map<String, dynamic>.from(data['exam']);
         List<dynamic> list = [dataList, exam];
-        // course_count = dataList.length.toInt();
         print(dataList.toString());
         return list;
       } else {
@@ -657,41 +596,37 @@ Future<List<dynamic>> startexam(String userid, String examid) async {
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
 
-// Future<String> time(String userid, String examid) async {
-//   try {
-//     final response = await post(Uri.parse(URLS.startexam),
-//         body: {'user_id': userid, 'examid': examid});
-//     print(userid);
-//     if (response.statusCode == 200) {
-//       // print('suji ');
-//       // print(topicid);
-//       final Map<String, dynamic> data = json.decode(response.body);
-//       // print(data['status']);
-//       if (data['status'] == 'success') {
-//         Map<String, dynamic> dataList = Map<String, dynamic>.from(data['exam']);
-//         String time = dataList['totaltime'];
-
-//         course_count = dataList.length.toInt();
-//         print(dataList.toString());
-//         return time;
-//       } else {
-//         throw Exception('Failed to fetch data: ${data['message']}');
-//       }
-//     } else {
-//       throw Exception('Failed to fetch data: ${response.reasonPhrase}');
-//     }
-//   } catch (e) {
-//     print(e.toString());
-
-//     // print(response.statusCode);
-//   }
-//   return '';
-// }
+/// Submits one answer and returns the full decoded reply (or null on failure).
+/// Used by mock exams, which need the correct answer from the reply.
+Future<Map<String, dynamic>?> submitAnswer(
+  String quesid,
+  String ans,
+  String examid,
+  String userid,
+) async {
+  try {
+    final body = {
+      'qnsid': quesid,
+      'ans': ans,
+      'examid': examid,
+      'user_id': userid,
+    };
+    final response =
+        await post(Uri.parse(URLS.nextquestion), headers: headers, body: body);
+    logApi('next_question', body, response);
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    }
+  } catch (e) {
+    debugPrint('submitAnswer failed: $e');
+  }
+  return null;
+}
 
 Future<String> nextques(
   String quesid,
@@ -707,10 +642,11 @@ Future<String> nextques(
       'examid': examid,
       'user_id': userid,
     });
-    print(userid);
+    logApi('next_question',
+        {'qnsid': quesid, 'ans': ans, 'examid': examid, 'user_id': userid},
+        response);
     if (response.statusCode == 200) {
       print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
       print(data['status']);
       if (data['status'] == 'success') {
@@ -725,7 +661,6 @@ Future<String> nextques(
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return 'failed';
 }
@@ -740,28 +675,17 @@ Future<String> finalsubmit(
       'examid': examid,
       'user_id': userid,
     });
-    print(userid);
+    logApi('exam_complete', {'examid': examid, 'user_id': userid}, response);
     if (response.statusCode == 200) {
-      print('suji ');
-      // print(topicid);
       print(examid);
       print(response.statusCode);
-      //final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       return 'ok';
-      // if (data['status'] == 'success') {
-      //   String datas = data['status'];
-      //   return datas;
-      // } else {
-      //   throw Exception('Failed to fetch data: ${data['message']}');
-      // }
     } else {
       throw Exception('Failed to fetch data: ${response.reasonPhrase}');
     }
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return 'failed';
 }
@@ -831,16 +755,11 @@ Future<List<Map<String, dynamic>>> search(
         await post(Uri.parse(URLS.coursesearch), headers: headers, body: {
       'name': name,
     });
-    // print(topicid);
     if (response.statusCode == 200) {
-      // print('suji ');
-      // print(topicid);
       final Map<String, dynamic> data = json.decode(response.body);
-      // print(data['status']);
       if (data['status'] == 'success') {
         List<Map<String, dynamic>> dataList =
             List<Map<String, dynamic>>.from(data['data']);
-        // course_count = dataList.length.toInt();
         return dataList;
       } else {
         throw Exception('Failed to fetch data: ${data['message']}');
@@ -851,7 +770,6 @@ Future<List<Map<String, dynamic>>> search(
   } catch (e) {
     print(e.toString());
 
-    // print(response.statusCode);
   }
   return [];
 }
@@ -860,7 +778,6 @@ Future<String?> userisblock(String userid) async {
   try {
     final response = await get(
       Uri.parse(URLS.blockornot + userid), headers: headers,
-      // body: {'user_id': userid, 'video_id': noteid}
     );
     print('userid: $userid');
 
@@ -881,60 +798,6 @@ Future<String?> userisblock(String userid) async {
   }
   return null;
 }
-
-// import 'package:flutter/material.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: MyHomePage(),
-//     );
-//   }
-// }
-
-// class MyHomePage extends StatelessWidget {
-//   void _showDialog(BuildContext context) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text('Alert'),
-//           content: Text('This is a pop-up dialog.'),
-//           actions: <Widget>[
-//             FlatButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop(); // Close the dialog
-//               },
-//               child: Text('Close'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Popup Example'),
-//       ),
-//       body: Center(
-//         child: RaisedButton(
-//           onPressed: () {
-//             _showDialog(context);
-//           },
-//           child: Text('Show Popup'),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 Future<List<Map<String, dynamic>>> invoicelist(String id) async {
   // Replace with your actual API endpoint
@@ -970,7 +833,6 @@ Future<String?> checkupdate(String version) async {
   try {
     final response = await get(
       Uri.parse(URLS.checkversion + version), headers: headers,
-      // body: {'user_id': userid, 'video_id': noteid}
     );
     print(URLS.checkversion + version);
     print(response.statusCode);
@@ -982,7 +844,6 @@ Future<String?> checkupdate(String version) async {
       print('$bodyasjson of updste');
       String data = bodyasjson['data'];
       print(bodyasjson);
-      // String data1 = data['data'];
       print('data is $data');
 
       return data;
@@ -1020,18 +881,15 @@ void _showDialog(BuildContext context) {
 Future<String> resetexamdata(
   String examid,
 ) async {
-  // String securemod = '';
   try {
     final response = await post(Uri.parse(URLS.clearexamdata),
         headers: headers, body: {'examid': examid, 'user_id': userId});
+    logApi('exam_reset', {'examid': examid, 'user_id': userId}, response);
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      if (data['status'] == 'success') {
+      final s = '${data['status']}'.toLowerCase();
+      if (s == 'success' || s == 'true' || s == '1') {
         return 'success';
-        // Map<String, dynamic> innerdata =
-        // Map<String, dynamic>.from(data['data']);
-        // securemod = innerdata['secure_mod'];
-        // print(securemod);
       }
     } else {
       throw Exception('Failed to fetch data: ${response.reasonPhrase}');

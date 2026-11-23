@@ -6,13 +6,13 @@ class NetworkController extends GetxController {
   final Connectivity _connectivity = Connectivity();
 
   @override
-  void onInt() {
+  void onInit() {
     super.onInit();
     _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
-  void _updateConnectionStatus(ConnectivityResult connectivityResult) {
-    if (ConnectivityResult == ConnectivityResult.none) {
+  void _updateConnectionStatus(List<ConnectivityResult> results) {
+    if (results.contains(ConnectivityResult.none)) {
       Get.rawSnackbar(
           messageText: const Text(
             'PLEASE CONNECT TO THE INTERNET',

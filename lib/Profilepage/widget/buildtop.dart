@@ -25,7 +25,6 @@ class buildtopprofile extends StatelessWidget {
           image: DecorationImage(
               image: AssetImage('assets/backgroundlms.jpg'),
               fit: BoxFit.cover)),
-      // color: Color.fromARGB(255, 250, 249, 249),
       height: double.infinity,
       width: double.infinity,
     );

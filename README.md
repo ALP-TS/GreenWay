@@ -1,4 +1,4 @@
-# greenway_lms
+# greenway
 
 A new Flutter project.
 

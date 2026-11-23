@@ -1,20 +1,17 @@
-// import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/dashboard/dashboard.dart';
-// import 'package:get/get.dart';
-import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-// import 'package:greenway_lms/data.dart/urls.dart';
-import 'package:greenway_lms/loginpage/loginpage.dart';
+import 'package:greenway/dashboard/dashboard.dart';
+import 'package:greenway/dashboard/widget/bottomnavigationbar.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/loginpage/loginpage.dart';
 // ignore: depend_on_referenced_packages
-// import 'package:carousel_slider/carousel_slider.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/coursedetailsdisplayscreen.dart';
-import 'package:greenway_lms/screen/courselist_categeory_list.dart';
-import 'package:greenway_lms/screen/newcoursedetailpage.dart';
-import 'package:greenway_lms/screen/searchresult.dart';
-// import 'package:http/http.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/coursedetailsdisplayscreen.dart';
+import 'package:greenway/screen/courselist_categeory_list.dart';
+import 'package:greenway/screen/newcoursedetailpage.dart';
+import 'package:greenway/screen/searchresult.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class course_listing_page extends StatefulWidget {
   const course_listing_page({super.key});
@@ -37,10 +34,8 @@ class _course_listing_pageState extends State<course_listing_page> {
       ),
       body: SafeArea(
         child: Stack(
-          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CustomScrollView(
-              // scrollDirection: Axis.horizontal,
               slivers: [
                 const SliverAppBar(
                   elevation: 0,
@@ -53,7 +48,6 @@ class _course_listing_pageState extends State<course_listing_page> {
                 ),
                 SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                  // return allcourselister();
                 }, childCount: 1))
               ],
             ),
@@ -108,7 +102,6 @@ class customslider1 extends StatelessWidget {
           height: 10,
         ),
         CourseList()
-        // carousalcourselist()
       ]),
     );
   }
@@ -148,7 +141,6 @@ class headingpart extends StatelessWidget {
       child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Container(
-              // color: Colors.amber,
               child: iscondition
                   ? Row(children: [
                       GestureDetector(
@@ -198,71 +190,10 @@ class headingpart extends StatelessWidget {
             height: 50,
           ),
         ]),
-        // searchbar()
       ]),
     );
   }
 }
-
-// class searchbar extends StatelessWidget {
-//   searchbar({
-//     super.key,
-//   });
-//   TextEditingController _controller = TextEditingController();
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//         padding: EdgeInsets.symmetric(vertical: 15),
-//         child: Container(
-//           width: double.infinity,
-//           height: 40,
-//           decoration: BoxDecoration(boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.2), // Color of the shadow
-//               spreadRadius: 5, // Spread radius
-//               blurRadius: 7, // Blur radius
-//               offset: Offset(0, 3),
-//             )
-//           ], color: Colors.white, borderRadius: BorderRadius.circular(10)),
-//           child: Row(children: [
-//             Expanded(
-//               child: Padding(
-//                 padding: EdgeInsets.only(left: 10),
-//                 child: TextField(
-//                   controller: _controller,
-//                   onChanged: (value) {
-//                     // Fetch data when the user types
-//                     // _fetchData(value);
-//                   },
-//                   decoration: InputDecoration(
-//                     // labelText: 'Search',
-//                     hintText: 'Type course name here...',
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             IconButton(
-//               icon: Icon(Icons.search),
-//               onPressed: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                       builder: (context) =>
-//                           Searchresult(search: _controller.text.toString())),
-//                 );
-//                 // Fetch data when the search icon is tapped
-//                 // _fetchData(_controller.text);
-//               },
-//             )
-//             // Icon(Icons.search),
-//             // Text(
-//             //   'Search here',
-//             //   selectionColor: Colors.grey,
-//             // ),
-//           ]),
-//         ));
-//   }
-// }
 
 class category_container extends StatelessWidget {
   const category_container({super.key});
@@ -285,7 +216,6 @@ class category_container extends StatelessWidget {
                 offset: Offset(0, 3),
               )
             ],
-            // color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
           width: double.infinity,
@@ -321,7 +251,6 @@ class category_container extends StatelessWidget {
                       ),
                       itemCount: category.length, // Total number of icons
                       itemBuilder: (context, index) {
-                        // print(category[index]);
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -363,59 +292,6 @@ class category_container extends StatelessWidget {
                   );
                 }
               })
-          // Column(
-          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //   children: [
-          //     Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //       children: [
-          //         Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [
-          //               GestureDetector(
-          //                   onTap: () {
-          //                     Navigator.push(
-          //                       context,
-          //                       MaterialPageRoute(
-          //                           builder: (context) => course_category_list()),
-          //                     );
-          //                   },
-          //                   child: CircleAvatar()),
-          //               Text('data')
-          //             ])),
-          //         const Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //         const Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //         const Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //       ],
-          //     ),
-          //     const SizedBox(
-          //       height: 10,
-          //     ),
-          //     const Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //       children: [
-          //         Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //         Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //         Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //         Padding(
-          //             padding: EdgeInsets.all(10),
-          //             child: Column(children: [CircleAvatar(), Text('data')])),
-          //       ],
-          //     )
-          //   ],
-          // ),
           ),
     );
   }
@@ -431,7 +307,6 @@ class _CourseListState extends State<CourseList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // color: Colors.amber,
       child: FutureBuilder<List<Map<String, dynamic>>>(
         future: randomcourse(),
         builder: (context, snapshot) {
@@ -479,9 +354,6 @@ class CourseCard extends StatelessWidget {
       imagecondition = false;
     }
     return Container(
-      // color: Colors.amber,
-      // margin: EdgeInsets.all(8.0),
-      // padding: EdgeInsets.all(8.0),
       width: 200,
       height: 200,
       child: Padding(
@@ -574,296 +446,162 @@ class allcourselister extends StatefulWidget {
 class _allcourselisterState extends State<allcourselister> {
   bool alllist = true;
   String? name;
-  int? id = null;
-  // Color buttoncolor = trans
+  int? id;
+  late Future<List<Map<String, dynamic>>> _future;
+  String? _openingId;
+
   @override
-  Widget build(BuildContext context) {
-    print(name);
-    print(alllist);
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
-    bool _wascondition;
-    return Column(children: [
-      Padding(
-        padding: EdgeInsets.all(10),
-        child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              // color: Colors.blueGrey.withOpacity(0.2),
-            ),
-            // width: 200,
-            // height: 30,
-            child: Container(
-              decoration: BoxDecoration(),
-              height: _width * 0.1,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          alllist = true;
-                          // print(alllist);
-                          name = null;
-                          id = null;
-                          // print(name);
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: id == null ? Colors.blue : null,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5)),
-                        // width: 100,
-                        // height: 100,
-                        height: _width * 0.1,
-                        // color: Colors.red,
-                        margin: EdgeInsets.all(5),
-                        child: Center(
-                            child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Text(
-                                  'All',
-                                  style: TextStyle(
-                                      color: id == null ? Colors.white : null),
-                                ))),
-                      ),
-                    ),
-                    for (int i = 0; i < widget.categorydata.length; i++)
-                      //  if(id == i)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            alllist = false;
-                            // print(alllist);
-                            name = widget.categorydata[i];
-                            id = i;
-                            // print(name);
-                          });
-                        },
-                        child:
-                            // if(id == i)
-                            Container(
-                          decoration: BoxDecoration(
-                              color: id == i ? Colors.blue : null,
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5)),
-                          // width: 100,
-                          height: 100,
-                          // color: Colors.red,
-                          margin: EdgeInsets.all(5),
-                          child: Center(
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 20),
-                                  child: Text(
-                                    widget.categorydata[i],
-                                    style: TextStyle(
-                                        color: id == i ? Colors.white : null),
-                                  ))),
-                        ),
-                      ),
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //       border: Border.all(color: Colors.grey),
-                    //       borderRadius: BorderRadius.circular(5)),
-                    //   width: 100,
-                    //   height: 100,
-                    //   // color: Colors.red,
-                    //   margin: EdgeInsets.all(5),
-                    // ),
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //       border: Border.all(color: Colors.grey),
-                    //       borderRadius: BorderRadius.circular(5)),
-                    //   width: 100,
-                    //   height: 100,
-                    //   // color: Colors.red,
-                    //   margin: EdgeInsets.all(5),
-                    // ),
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //       border: Border.all(color: Colors.grey),
-                    //       borderRadius: BorderRadius.circular(5)),
-                    //   width: 100,
-                    //   height: 100,
-                    //   // color: Colors.red,
-                    //   margin: EdgeInsets.all(5),
-                    // ),
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //       border: Border.all(color: Colors.grey),
-                    //       borderRadius: BorderRadius.circular(5)),
-                    //   width: 100,
-                    //   height: 100,
-                    //   // color: Colors.red,
-                    //   margin: EdgeInsets.all(5),
-                    // ),
-                  ],
-                ),
-              ),
-            )),
-      ),
-      alllist
-          ? FutureBuilder<List<Map<String, dynamic>>>(
-              future: getallcourse(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  // Use the fetched data as needed
-
-                  List<Map<String, dynamic>> data = snapshot.data!;
-
-                  List image = data.toList();
-                  // print('dataaaaaa');
-
-                  // Display the data in a Container
-                  return Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (Map<String, dynamic> subject in data)
-                          GestureDetector(
-                            onTap: () async {
-                              courseid = {subject['site_courseid']}.toList();
-                              final _result = await courseindivitual(courseid!);
-                              print(_result?.status);
-                              if (_result?.status == 'success') {
-                                print(_result?.message);
-                                print(_result?.data?.course);
-                                coursename = _result?.data?.course;
-                                subcoursename = _result?.data?.subName;
-                                orgamount = _result?.data?.orgAmount;
-                                offeramount = _result?.data?.offerAmount;
-                                profile = _result?.data?.profile;
-                                overview = _result?.data?.overview;
-                                duration = _result?.data?.duration;
-                                previewvideo = _result?.data?.previewVideo;
-                                lectures = _result?.data?.lectures;
-                                language = _result?.data?.language;
-                                requirements = _result?.data?.requirements;
-                                specification = _result?.data?.specifications;
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => coursedetailpage()),
-                                );
-                              }
-                            },
-                            child: allcourse_card(subject: subject),
-                          ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            )
-          : FutureBuilder<List<Map<String, dynamic>>>(
-              future: categorycourse(name),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  // Use the fetched data as needed
-
-                  List<Map<String, dynamic>> data = snapshot.data!;
-                  List image = data.toList();
-                  print(data);
-
-                  // Display the data in a Container
-                  return Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (Map<String, dynamic> subject in data)
-                          GestureDetector(
-                            onTap: () async {
-                              courseid = {subject['site_courseid']}.toList();
-                              final _result = await courseindivitual(courseid!);
-                              print(_result?.status);
-                              if (_result?.status == 'success') {
-                                print(_result?.message);
-                                print(_result?.data?.course);
-                                coursename = _result?.data?.course;
-                                subcoursename = _result?.data?.subName;
-                                orgamount = _result?.data?.orgAmount;
-                                offeramount = _result?.data?.offerAmount;
-                                profile = _result?.data?.profile;
-                                overview = _result?.data?.overview;
-                                duration = _result?.data?.duration;
-                                previewvideo = _result?.data?.previewVideo;
-                                lectures = _result?.data?.lectures;
-                                language = _result?.data?.language;
-                                requirements = _result?.data?.requirements;
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => coursedetailpage()),
-                                );
-                              }
-                            },
-                            child:
-                                // Container()
-                                allcourse_card(subject: subject),
-                          ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            )
-    ]);
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _showBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 200,
-          child: Column(
-            children: [
-              ListTile(
-                // leading: Icon(Icons.photo),
-                title: Text('Photos'),
-                onTap: () {
-                  // Handle tapping on Photos
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.music_note),
-                title: Text('Music'),
-                onTap: () {
-                  // Handle tapping on Music
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.video_library),
-                title: Text('Videos'),
-                onTap: () {
-                  // Handle tapping on Videos
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
+  void _load() {
+    _future = alllist ? getallcourse() : categorycourse(name);
+  }
+
+  void _select(int? index) {
+    setState(() {
+      id = index;
+      alllist = index == null;
+      name = index == null ? null : widget.categorydata[index];
+      _load();
+    });
+  }
+
+  Future<void> _openCourse(Map<String, dynamic> subject) async {
+    if (_openingId != null) return;
+    final cid = '${subject['site_courseid']}';
+    setState(() => _openingId = cid);
+    try {
+      courseid = {subject['site_courseid']}.toList();
+      final result = await courseindivitual(courseid!);
+      if (!mounted) return;
+      if (result?.status == 'success') {
+        coursename = result?.data?.course;
+        subcoursename = result?.data?.subName;
+        orgamount = result?.data?.orgAmount;
+        offeramount = result?.data?.offerAmount;
+        profile = result?.data?.profile;
+        overview = result?.data?.overview;
+        duration = result?.data?.duration;
+        previewvideo = result?.data?.previewVideo;
+        lectures = result?.data?.lectures;
+        language = result?.data?.language;
+        requirements = result?.data?.requirements;
+        specification = result?.data?.specifications;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => coursedetailpage()),
         );
-      },
+      } else {
+        showAppSnack(context, 'Could not open this course. Please try again.',
+            error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _openingId = null);
+    }
+  }
+
+  Widget _chip(String label, bool selected, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onTap(),
+        showCheckmark: false,
+        selectedColor: Brand.primary,
+        backgroundColor: Colors.white,
+        side: BorderSide(color: selected ? Brand.primary : Brand.border),
+        labelStyle: TextStyle(
+          color: selected ? Colors.white : Brand.text,
+          fontWeight: FontWeight.w600,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.categorydata.isNotEmpty)
+          SizedBox(
+            height: 52,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Brand.gutter, vertical: 6),
+              children: [
+                _chip('All', id == null, () => _select(null)),
+                for (int i = 0; i < widget.categorydata.length; i++)
+                  _chip(widget.categorydata[i], id == i, () => _select(i)),
+              ],
+            ),
+          ),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 60),
+                child: LoadingView(),
+              );
+            }
+            final data = snapshot.data ?? const [];
+            if (snapshot.hasError || data.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: EmptyView(
+                  compact: true,
+                  icon: Icons.school_outlined,
+                  title: alllist
+                      ? 'No courses available'
+                      : 'No courses in "$name"',
+                  message: 'Please check back later or try another category.',
+                  actionLabel: 'Refresh',
+                  onAction: () => setState(_load),
+                ),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  Brand.gutter, 8, Brand.gutter, Brand.gutter),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final subject in data)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _openCourse(subject),
+                            child: Appear(child: allcourse_card(subject: subject)),
+                          ),
+                          if (_openingId == '${subject['site_courseid']}')
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  borderRadius:
+                                      BorderRadius.circular(Brand.radius),
+                                ),
+                                child: const LoadingView(),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -878,301 +616,125 @@ class allcourse_card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
-    // print(subject);
-    bool imagecondition;
-    if (subject['profile'] == '') {
-      imagecondition = true;
-    } else {
-      imagecondition = false;
-    }
-    return Padding(
-      padding: EdgeInsets.all(5),
+    final title = clean(subject['course'], 'Untitled course');
+    final sub = clean(subject['sub_name']);
+    final offer = clean(subject['offer_amount']);
+    final org = clean(subject['org_amount']);
+    final showStrike = org.isNotEmpty && org != offer;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Brand.radius),
+        border: Border.all(color: Brand.border),
+        boxShadow: Brand.softShadow,
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: _width,
-            // height: _height * 0.35,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 1,
-                  offset: Offset(0, 3), // changes position of shadow
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: SafeNetworkImage(url: '${subject['profile']}'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 17, fontWeight: FontWeight.w700, height: 1.3),
+                ),
+                if (sub.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    sub,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 14, color: Brand.textMuted, height: 1.3),
+                  ),
+                ],
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.end,
+                        spacing: 8,
+                        children: [
+                          if (offer.isNotEmpty)
+                            Text(
+                              '₹$offer',
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Brand.accent),
+                            ),
+                          if (showStrike)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: Text(
+                                '₹$org',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Brand.textMuted,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Brand.primaryLight,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Explore',
+                              style: TextStyle(
+                                  color: Brand.primary,
+                                  fontWeight: FontWeight.w700)),
+                          SizedBox(width: 4),
+                          Icon(Icons.arrow_forward_rounded,
+                              size: 16, color: Brand.primary),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(_width * 0.04),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildText(' ${subject['course']}', Colors.black, 15),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    // height: _height * 0.15,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: imagecondition
-                          ? Image.asset(
-                              'assets/course.jpg',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
-                              '${subject['profile']}',
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  buildText(' ${subject['sub_name']}', Colors.black, 15),
-                  Divider(
-                    color: Colors.orange,
-                    thickness: 2,
-                  ),
-                  Row(children: [
-                    Icon(
-                      Icons.currency_rupee_rounded,
-                      color: Colors.orange,
-                      size: 15,
-                    ),
-                    buildText('${subject['offer_amount']}', Colors.orange, 15),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    // buildText(course['org_amount'], Appcolor.greenlight, 15),
-                    Text('${subject['org_amount']}',
-                        style: TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.blue))
-                  ]),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildbutton('Explore', _height, _width, Colors.yellow,
-                          Colors.blue, 15),
-                      // _buildbutton('Buy Now', height, width, Appcolor.white,
-                      //     Appcolor.green, 15)
-                    ],
-                  )
-                ],
-              ),
             ),
           ),
-          SizedBox(
-            height: _width * 0.02,
-          )
         ],
       ),
     );
   }
 
-  void _showBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 200,
-          child: Column(
-            children: [
-              ListTile(
-                leading: Icon(Icons.photo),
-                title: Text('Photos'),
-                onTap: () {
-                  // Handle tapping on Photos
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.music_note),
-                title: Text('Music'),
-                onTap: () {
-                  // Handle tapping on Music
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.video_library),
-                title: Text('Videos'),
-                onTap: () {
-                  // Handle tapping on Videos
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget buildText(String text, Color textColor, double fontSize) {
     return Text(
-      text, textAlign: TextAlign.center, // Pass the text parameter here
-
+      text,
+      textAlign: TextAlign.center,
       maxLines: 10,
       softWrap: true,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: textColor,
         fontSize: fontSize,
-        fontFamily: 'Rubik',
         fontWeight: FontWeight.w700,
       ),
     );
   }
-
-  Widget _buildbutton(String text, double height, double width, Color textcolor,
-      Color color, double fontsize) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: color,
-        // border: Border.all(color: Appcolor.green),
-      ),
-      width: width * 0.8,
-      height: height * 0.05,
-      child: Center(child: buildText(text, textcolor, 15)),
-    );
-  }
-
-  // Card(
-  //     child: Container(
-  //   decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(15),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.2),
-  //           spreadRadius: 5,
-  //           blurRadius: 7,
-  //           offset: Offset(0, 3),
-  //         )
-  //       ]),
-  //   // color: Colors.amber,
-  //   width: double.infinity,
-  //   height: 150,
-  //   child: Row(
-  //     children: [
-  //       Expanded(
-  //         flex: 1,
-  //         child: Padding(
-  //           padding: EdgeInsets.symmetric(horizontal: 10),
-  //           child: Container(
-  //             decoration: BoxDecoration(
-  //                 // color: Colors.black,
-  //                 borderRadius: BorderRadius.circular(15)),
-  //             // height: 150,
-  //             child: ClipRRect(
-  //               borderRadius: BorderRadius.circular(15),
-  //               child: imagecondition
-  //                   ? Image.asset('assets/default image.png')
-  //                   : Image.network(
-  //                       '${subject['profile']}',
-  //                       fit: BoxFit.cover,
-  //                     ),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       Expanded(
-  //         flex: 2,
-  //         child: Padding(
-  //           padding: EdgeInsets.all(10),
-  //           child: Container(
-  //             // color: Colors.amber,
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //               children: [
-  //                 Text(
-  //                   ' ${subject['course']}',
-  //                   style:
-  //                       TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-  //                 ),
-  //                 Text(
-  //                   ' ${subject['course']}',
-  //                   style: TextStyle(
-  //                     fontSize: 14,
-  //                   ),
-  //                 ),
-  //                 Row(children: [
-  //                   Padding(
-  //                     padding: EdgeInsets.all(10),
-  //                     child: Container(
-  //                       height: 35,
-  //                       decoration: BoxDecoration(
-  //                           boxShadow: [
-  //                             BoxShadow(
-  //                               color: Colors.black.withOpacity(0.2),
-  //                               spreadRadius: 5,
-  //                               blurRadius: 7,
-  //                               offset: Offset(0, 3),
-  //                             )
-  //                           ],
-  //                           borderRadius: BorderRadius.circular(15),
-  //                           color: Colors.red),
-  //                       child: TextButton.icon(
-  //                           onPressed: () {},
-  //                           icon: Icon(Icons.currency_rupee_outlined),
-  //                           label: Text('${subject['org_amount']}')),
-  //                     ),
-  //                   ),
-  //                   Padding(
-  //                     padding: EdgeInsets.all(10),
-  //                     child: Container(
-  //                       height: 35,
-  //                       decoration: BoxDecoration(
-  //                           boxShadow: [
-  //                             BoxShadow(
-  //                               color: Colors.black.withOpacity(0.2),
-  //                               spreadRadius: 5,
-  //                               blurRadius: 7,
-  //                               offset: Offset(0, 3),
-  //                             )
-  //                           ],
-  //                           borderRadius: BorderRadius.circular(15),
-  //                           color: Colors.amber),
-  //                       child: TextButton.icon(
-  //                           onPressed: () {},
-  //                           icon: Icon(Icons.currency_rupee_outlined),
-  //                           label: Text('${subject['offer_amount']}')),
-  //                     ),
-  //                   ),
-  //                 ]),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       )
-  //     ],
-  //   ),
-  // ));
 }
-
-// import 'package:flutter/material.dart';
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: Bottomsheet(),
-//     );
-//   }
-// }
 
 class Bottomsheet extends StatelessWidget {
   void _showBottomSheet(BuildContext context) {
@@ -1232,305 +794,3 @@ class Bottomsheet extends StatelessWidget {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// GridView.builder(
-//   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//     crossAxisCount: 2, // Number of columns
-//     crossAxisSpacing: 10.0, // Spacing between columns
-//     mainAxisSpacing: 10.0, // Spacing between rows
-//   ),
-//   itemCount: data.length,
-//   itemBuilder: (BuildContext context, int index) {
-//     Datum datum = data[index];
-//     return GridTile(
-//       child: Padding(
-//         padding: EdgeInsets.all(10),
-//         child: GestureDetector(
-//           onTap: () {
-//             Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                   builder: (context) => topiclisting(
-//                         subid: '${datum.subjectId}',
-//                       )),
-//             );
-//           },
-//           child: Container(
-//             height: 50, // Set the height of the container to 50px
-//             decoration: BoxDecoration(
-//               border: Border(
-//                 left: BorderSide(color: Colors.orange, width: 3),
-//               ),
-//               color: Colors.white,
-//             ),
-//             child: Padding(
-//               padding: EdgeInsets.all(10),
-//               child: Row(
-//                 children: [
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         '${datum.name}',
-//                         style: TextStyle(fontSize: 20),
-//                       ),
-//                       Text(
-//                         'Topic Count :${datum.tCount}',
-//                         style: TextStyle(fontSize: 15),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   },
-// ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // import 'dart:convert';
-
-// import 'package:flutter/material.dart';
-// import 'package:lms/dashboard/dashboard.dart';
-// // import 'package:get/get.dart';
-// import 'package:lms/dashboard/widget/bottomnavigationbar.dart';
-// import 'package:lms/data.dart/apicalls.dart';
-// // import 'package:lms/data.dart/urls.dart';
-// import 'package:lms/loginpage/loginpage.dart';
-// // ignore: depend_on_referenced_packages
-// // import 'package:carousel_slider/carousel_slider.dart';
-// import 'package:lms/others/constants.dart';
-// import 'package:lms/screen/coursedetailsdisplayscreen.dart';
-// import 'package:lms/screen/courselist_categeory_list.dart';
-// import 'package:lms/screen/searchresult.dart';
-
-// // import 'package:http/http.dart';
-// class course_listing_page extends StatefulWidget {
-//   const course_listing_page({super.key});
-
-//   @override
-//   State<course_listing_page> createState() => _course_listing_pageState();
-// }
-
-// class _course_listing_pageState extends State<course_listing_page> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: PreferredSize(
-//         preferredSize: Size.fromHeight(10.0),
-//         child: AppBar(
-//             flexibleSpace: Container(
-//           height: 50,
-//           decoration: BoxDecoration(gradient: myGradient),
-//         )),
-//       ),
-//       body: SafeArea(
-//         child: CustomScrollView(
-//           slivers: [
-//             SliverAppBar(
-//               elevation: 0,
-//               centerTitle: false,
-//               expandedHeight: 625,
-//               pinned: true,
-//               flexibleSpace: FlexibleSpaceBar(
-//                   background: Container(
-//                     color: Colors.amber,
-//                     height: MediaQuery.of(context).size.height * 0.5,
-//                     width: MediaQuery.of(context).size.width,
-//                   ),
-//                   //  customslider1(),
-//                   stretchModes: [StretchMode.blurBackground]),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/others/constants.dart';
 
 ///Dart 2.17
 /// Dart

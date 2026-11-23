@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/course_listing_page.dart';
-import 'package:greenway_lms/screen/coursedetailsdisplayscreen.dart';
-import 'package:greenway_lms/screen/newcoursedetailpage.dart';
-// import 'package:lms/screen/demo.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/course_listing_page.dart';
+import 'package:greenway/screen/coursedetailsdisplayscreen.dart';
+import 'package:greenway/screen/newcoursedetailpage.dart';
 
 class Searchresult extends StatefulWidget {
   const Searchresult({super.key, this.search});
@@ -49,7 +48,6 @@ class _SearchresultState extends State<Searchresult> {
 
                     // Display the data in a Container
                     return Container(
-                      // padding: EdgeInsets.all(16.0),
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +86,6 @@ class _SearchresultState extends State<Searchresult> {
                                     }
                                   },
                                   child: Container()
-                                  // allcourse_card(subject: subject),
                                   ),
                           ],
                         ),

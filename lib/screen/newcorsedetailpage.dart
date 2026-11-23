@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:greenway_lms/dashboard/dashboard.dart';
-import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-import 'package:greenway_lms/dashboard/widget/carousaldash.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/loginpage/loginpage.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/course_listing_page.dart';
-import 'package:greenway_lms/screen/newcoursedetailpage.dart';
+import 'package:greenway/dashboard/widget/bottomnavigationbar.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/loginpage/loginpage.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/course_listing_page.dart';
+import 'package:greenway/screen/newcoursedetailpage.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
-// import 'package:mcj/colors.dart';
 class newcourse extends StatefulWidget {
   final List<String> categorydata;
   const newcourse({super.key, required this.categorydata});
@@ -21,252 +19,149 @@ class newcourse extends StatefulWidget {
 class _newcourseState extends State<newcourse> {
   @override
   Widget build(BuildContext context) {
-    bool islogin = false;
-    if (rememberUser == true) {
-      islogin = true;
-    }
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
+    final islogin = rememberUser == true;
+
     return Scaffold(
-        body: Stack(children: [
-      CustomScrollView(slivers: [
-        const SliverAppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: false,
-          expandedHeight: 500,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 190,
+            backgroundColor: Brand.primary,
+            foregroundColor: Colors.white,
+            title: const Text('Explore Courses'),
+            flexibleSpace: const FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
               background: sliverbar(),
-              stretchModes: [StretchMode.blurBackground]),
-        ),
-        SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-          return allcourselister(
-            categorydata: widget.categorydata,
-          );
-        }, childCount: 1))
-      ]),
-      Positioned(
-        left: 0, right: 0,
-        // height: _width * 0.5,
-        bottom: 0,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  Brand.gutter, 20, Brand.gutter, 4),
+              child: const SectionHeader('All courses'),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: allcourselister(categorydata: widget.categorydata),
+          ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
         child: Container(
-          decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.blue))),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(
-              'Already have an Account?',
-              style: TextStyle(color: Colors.black),
-            ),
-            SizedBox(
-              width: 5,
-            ),
-            GestureDetector(
-                onTap: () {
-                  if (islogin == true) {
-                    print('tapped');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => navigationbar(),
-                      ),
-                    );
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Brand.border)),
+          ),
+          padding: const EdgeInsets.fromLTRB(Brand.gutter, 10, Brand.gutter, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  islogin ? 'You\'re signed in' : 'Already have an account?',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Brand.textMuted),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 42),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                ),
+                onPressed: () {
+                  final nav = Navigator.of(context);
+                  if (islogin) {
+                    // Opened from the dashboard: just go back to it.
+                    if (nav.canPop()) {
+                      nav.pop();
+                    } else {
+                      nav.pushReplacement(MaterialPageRoute(
+                          builder: (context) => const navigationbar()));
+                    }
                   } else {
-                    print('tapped');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginPage(),
-                      ),
-                    );
+                    nav.push(MaterialPageRoute(
+                        builder: (context) => const LoginPage()));
                   }
                 },
-                child: Text(
-                  islogin ? 'Go To Dashboard' : 'Login',
-                  style: TextStyle(color: Colors.blue),
-                ))
-          ]),
-          height: _width * 0.15,
-          width: double.infinity,
-          // color: const Color.fromARGB(255, 175, 171, 171),
+                child: Text(islogin ? 'Go to Dashboard' : 'Login'),
+              ),
+            ],
+          ),
         ),
-      )
-    ]));
+      ),
+    );
   }
 }
 
+/// Header shown behind the Explore app bar.
 class sliverbar extends StatelessWidget {
   const sliverbar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController searchController;
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
-    return Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Container(
-            width: double.infinity,
-            // height: _height*0.25,
-            decoration: BoxDecoration(
-              gradient: myGradient,
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Welcome To \nGreenway',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          CircleAvatar(
-                            backgroundImage: AssetImage(logo),
-                            radius: _width * 0.05,
-                          ),
-                          //  CircleAvatar(backgroundImage: ,)
-                        ]),
-                    // Row(children: [
-                    //   Text(
-                    //     'Already have an account ?',
-                    //     style: TextStyle(color: Colors.white, fontSize: 15),
-                    //   ),
-                    //   Text(
-                    //     'Login',
-                    //     style: TextStyle(color: Colors.orange, fontSize: 20),
-                    //   )
-                    // ]),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    // Container(
-                    //   height: 50,
-                    //   decoration: BoxDecoration(boxShadow: [
-                    //     BoxShadow(
-                    //         offset: const Offset(12, 26),
-                    //         blurRadius: 50,
-                    //         spreadRadius: 0,
-                    //         color: Colors.grey.withOpacity(.1)),
-                    //   ]),
-                    //   child: TextField(
-                    //     // controller: searchController,
-                    //     textAlign: TextAlign.center,
-                    //     onChanged: (value) {},
-                    //     onTap: () {
-                    //       Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //           builder: (context) => searchpages(),
-                    //         ),
-                    //       );
-                    //     },
-                    //     style: const TextStyle(fontSize: 14),
-                    //     decoration: InputDecoration(
-                    //       // prefixIcon: Icon(Icons.email),
-                    //       prefixIcon: const Icon(Icons.search,
-                    //           size: 20, color: Color(0xffFF5A60)),
-                    //       filled: true,
-                    //       fillColor: Colors.white,
-                    //       hintText: 'Search Courses',
-                    //       hintStyle:
-                    //           TextStyle(color: Colors.black.withOpacity(.75)),
-                    //       contentPadding: const EdgeInsets.symmetric(
-                    //           vertical: 0.0, horizontal: 20.0),
-                    //       border: const OutlineInputBorder(
-                    //         borderRadius:
-                    //             BorderRadius.all(Radius.circular(15.0)),
-                    //       ),
-                    //       enabledBorder: const OutlineInputBorder(
-                    //         borderSide:
-                    //             BorderSide(color: Colors.white, width: 1.0),
-                    //         borderRadius:
-                    //             BorderRadius.all(Radius.circular(15.0)),
-                    //       ),
-                    //       focusedBorder: const OutlineInputBorder(
-                    //         borderSide:
-                    //             BorderSide(color: Colors.white, width: 2.0),
-                    //         borderRadius:
-                    //             BorderRadius.all(Radius.circular(15.0)),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ]),
+    final top = MediaQuery.of(context).padding.top;
+    return Container(
+      decoration: const BoxDecoration(gradient: Brand.gradient),
+      padding: EdgeInsets.fromLTRB(
+          Brand.gutter, top + kToolbarHeight + 4, Brand.gutter, 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome to $Instittename',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'A wide range of courses to make your learning more enjoyable.',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13,
+                      height: 1.35),
+                ),
+              ],
             ),
           ),
-        ),
-        // searchbarcontainer(),
-        SizedBox(
-          height: 20,
-        ),
-        Expanded(
-            flex: 1,
-            child: Container(
-              child: Column(
-                children: [
-                  // Text(
-                  //   'WELCOME TO ',
-                  //   style: TextStyle(
-                  //       // shadows: [
-                  //       //   Shadow(
-                  //       //     color: Appcolor.yellow,
-                  //       //     // Set shadow color same as text color
-                  //       //     blurRadius: 5,
-                  //       //     offset: Offset(0, 0),
-                  //       //   ),
-                  //       // ],
-                  //       color: Colors.blue,
-                  //       fontSize: 30,
-                  //       fontWeight: FontWeight.w700),
-                  // ),
-                  Container(
-                    width: _width * 0.8,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: buildText(
-                          'Our platform offers a wide range of features  to make your learning experience more enjoyable ',
-                          Colors.black,
-                          15),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-        Expanded(flex: 2, child: carousaldash()),
-        // carousaldash()
-      ],
-      // height: _height,
-      // color: Colors.amber,
+          const SizedBox(width: 12),
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Image.asset(logo),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 Widget buildText(String text, Color textColor, double fontSize) {
   return Text(
-    text, textAlign: TextAlign.center, // Pass the text parameter here
-
+    text,
+    textAlign: TextAlign.center,
     maxLines: 3,
     softWrap: true,
     overflow: TextOverflow.ellipsis,
     style: TextStyle(
       color: textColor,
       fontSize: fontSize,
-      fontFamily: 'Rubik',
       fontWeight: FontWeight.w700,
     ),
   );
@@ -277,49 +172,15 @@ class SearchInputFb1 extends StatelessWidget {
   final String hintText;
 
   const SearchInputFb1(
-      {required this.searchController, required this.hintText, Key? key})
-      : super(
-          key: key,
-        );
+      {required this.searchController, required this.hintText, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(boxShadow: [
-        BoxShadow(
-            offset: const Offset(12, 26),
-            blurRadius: 50,
-            spreadRadius: 0,
-            color: Colors.grey.withOpacity(.1)),
-      ]),
-      child: TextField(
-        controller: searchController,
-        textAlign: TextAlign.center,
-        onChanged: (value) {},
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          // prefixIcon: Icon(Icons.email),
-          prefixIcon:
-              const Icon(Icons.search, size: 20, color: Color(0xffFF5A60)),
-          filled: true,
-          fillColor: Colors.white,
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.black.withOpacity(.75)),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15.0)),
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white, width: 1.0),
-            borderRadius: BorderRadius.all(Radius.circular(15.0)),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white, width: 2.0),
-            borderRadius: BorderRadius.all(Radius.circular(15.0)),
-          ),
-        ),
+    return TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.search_rounded),
+        hintText: hintText,
       ),
     );
   }
@@ -333,146 +194,75 @@ class searchpages extends StatefulWidget {
 }
 
 class _searchpagesState extends State<searchpages> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   List<Map<String, dynamic>> _searchResults = [];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+      appBar: gradientAppBar('Search courses'),
+      body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(10),
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        offset: const Offset(12, 26),
-                        blurRadius: 50,
-                        spreadRadius: 0,
-                        color: Colors.grey.withOpacity(.1)),
-                  ],
-                  border: Border.all(color: Colors.blue),
-                  borderRadius: BorderRadius.circular(10)),
-              child: TextField(
-                controller: _controller,
-                textAlign: TextAlign.center,
-                onChanged: (value) async {
-                  final searchResults = await search(value);
-                  setState(() {
-                    _searchResults = searchResults;
-                  });
-                  print(searchResults);
-                },
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  // prefixIcon: Icon(Icons.email),
-                  prefixIcon: const Icon(Icons.search,
-                      size: 20, color: Color(0xffFF5A60)),
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Search Courses',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(.75)),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 20.0),
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                  ),
-                ),
+            padding: const EdgeInsets.all(Brand.gutter),
+            child: TextField(
+              controller: _controller,
+              autofocus: true,
+              onChanged: (value) async {
+                final searchResults = await search(value);
+                if (!mounted) return;
+                setState(() => _searchResults = searchResults);
+              },
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search_rounded),
+                hintText: 'Search courses',
               ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _searchResults.length,
-              // itemCount: 50,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Searchlist(
-                          searchvalue: _searchResults[index]['course'],
-                          searchid: _searchResults[index]['site_courseid'],
-                        ),
-                      ),
-                    );
-                    // print(_searchResults[index]['videoname']);
-                    // setState(() {
-                    //   // searchvalue = _searchResults[index]['videoname'];
-                    //   widget.updateSearchValue(
-                    //       _searchResults[index]['videoname']);
-                    //   _searchResults = [];
-                    // });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        left: _width * 0.02, right: _width * 0.02),
-                    child: Column(children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            // borderRadius: BorderRadius.circular(5),
-                            // color: Colors.white,
-                            // border: Border(
-                            // bottom: BorderSide(color: Colors.grey),
-                            // ),
+            child: _searchResults.isEmpty
+                ? EmptyView(
+                    icon: Icons.search_rounded,
+                    title: _controller.text.isEmpty
+                        ? 'Find a course'
+                        : 'No matching courses',
+                    message: _controller.text.isEmpty
+                        ? 'Start typing to search.'
+                        : 'Try a different keyword.',
+                  )
+                : ListView.separated(
+                    itemCount: _searchResults.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final r = _searchResults[index];
+                      return ListTile(
+                        leading: const Icon(Icons.search_rounded,
+                            color: Brand.textMuted),
+                        title: Text(clean(r['course']),
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Searchlist(
+                                searchvalue: clean(r['course']),
+                                searchid: clean(r['site_courseid']),
+                              ),
                             ),
-                        width: double.infinity,
-                        height: _width * 0.1,
-
-                        child: Padding(
-                          padding: EdgeInsets.only(left: _width * 0.02),
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Expanded(
-                                    flex: 8,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              bottom: BorderSide(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.5)))),
-                                      child: Text(
-                                        _searchResults[index]['course'],
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ))
-                              ])),
-                        ),
-                        // You can customize ListTile as needed
-                      ),
-                    ]),
+                          );
+                        },
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
-      )),
+      ),
     );
   }
 }
@@ -485,128 +275,40 @@ class Searchlist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print(object)
     return Scaffold(
-      body: SafeArea(
-          child: FutureBuilder<Map<String, dynamic>>(
-        future: corsebyid(searchid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            // Use the fetched data as needed
-
-            Map<String, dynamic> data = snapshot.data!;
-            print(data);
-
-            // List image = data.toList();
-            // print('dataaaaaa');
-
-            // Display the data in a Container
-            return SingleChildScrollView(
-              child: Column(children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(12, 26),
-                              blurRadius: 50,
-                              spreadRadius: 0,
-                              color: Colors.grey.withOpacity(.1)),
-                        ],
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: TextField(
-                      // controller: searchController,
-                      textAlign: TextAlign.center,
-                      onChanged: (value) {},
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => searchpages(),
-                          ),
-                        );
-                      },
-                      style: const TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        // prefixIcon: Icon(Icons.email),
-                        prefixIcon: const Icon(Icons.search,
-                            size: 20, color: Color(0xffFF5A60)),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: searchvalue,
-                        hintStyle:
-                            TextStyle(color: Colors.black.withOpacity(.75)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0.0, horizontal: 20.0),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.white, width: 1.0),
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // for (Map<String, dynamic> subject in data)
-                      GestureDetector(
-                        onTap: () async {
-                          // courseid = {subject['site_courseid']}.toList();
-                          // final _result = await courseindivitual(courseid!);
-                          // print(_result?.status);
-                          // if (_result?.status == 'success') {
-                          // print(data['profile']);
-                          // print(_result?.data?.course);
-                          coursename = data['course'];
-                          subcoursename = data['sub_name'];
-                          orgamount = data['org_amount'];
-                          offeramount = data['offer_amount'];
-                          profile = data['profile'];
-                          overview = data['overview'];
-                          duration = data['duration'];
-                          // previewvideo = _result?.data?.previewVideo;
-                          lectures = data['lectures'];
-                          language = data['language'];
-                          requirements = data['requirements'];
-                          specification = data['specifications'];
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => coursedetailpage()),
-                          );
-                          // }
-                        },
-                        child: allcourse_card(subject: data),
-                      ),
-                    ],
-                  ),
-                ),
-              ]),
-            );
-          }
+      appBar: gradientAppBar(searchvalue),
+      body: AsyncView<Map<String, dynamic>>(
+        load: () => corsebyid(searchid),
+        emptyIcon: Icons.school_outlined,
+        emptyTitle: 'Course not found',
+        builder: (context, data, reload) {
+          return ListView(
+            padding: const EdgeInsets.all(Brand.gutter),
+            children: [
+              GestureDetector(
+                onTap: () {
+                  coursename = data['course'];
+                  subcoursename = data['sub_name'];
+                  orgamount = data['org_amount'];
+                  offeramount = data['offer_amount'];
+                  profile = data['profile'];
+                  overview = data['overview'];
+                  duration = data['duration'];
+                  lectures = data['lectures'];
+                  language = data['language'];
+                  requirements = data['requirements'];
+                  specification = data['specifications'];
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => coursedetailpage()),
+                  );
+                },
+                child: allcourse_card(subject: data),
+              ),
+            ],
+          );
         },
-      )),
+      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:lms/carousal/caroualpage.dart';
-import 'package:greenway_lms/colors.dart';
+import 'package:greenway/colors.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -41,7 +40,6 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
       ),
       body: Container(
-          // child: TabBarPage(),
           ),
     );
   }

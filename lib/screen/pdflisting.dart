@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/data.dart/apicalls.dart';
 
-import 'package:greenway_lms/screen/imageviewer.dart';
-import 'package:greenway_lms/screen/notesinnerlist.dart';
-import 'package:greenway_lms/screen/pdfviewer.dart';
-import 'package:greenway_lms/screen/pptviewer.dart';
+import 'package:greenway/screen/imageviewer.dart';
+import 'package:greenway/screen/notesinnerlist.dart';
+import 'package:greenway/screen/pdfviewer.dart';
+import 'package:greenway/screen/pptviewer.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class notelisting extends StatelessWidget {
   const notelisting({super.key, required this.topicid});
@@ -16,57 +17,87 @@ class notelisting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: getallpdf(topicid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            // Use the fetched data as needed
-
-            List<Map<String, dynamic>> data = snapshot.data!;
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  elevation: 0,
-                  centerTitle: false,
-                  expandedHeight: 100,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                      background: Container(
-                        decoration: BoxDecoration(gradient: myGradient),
-                        child: Center(
-                          child: Text(
-                            'Notes',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
-                        ),
-                      ),
-                      stretchModes: [StretchMode.zoomBackground]),
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return Container(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (Map<String, dynamic> subject in data)
-                            pdflistcard(subject: subject),
-                        ],
-                      ),
-                    );
-                  }, childCount: 1),
-                ),
-              ],
-            );
-          }
+      appBar: gradientAppBar('Notes'),
+      body: AsyncView<List<Map<String, dynamic>>>(
+        load: () => getallpdf(topicid),
+        emptyIcon: Icons.description_outlined,
+        emptyTitle: 'No notes yet',
+        emptyMessage: 'Notes for this topic will appear here once uploaded.',
+        builder: (context, data, reload) {
+          return RefreshIndicator(
+            onRefresh: reload,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Brand.gutter),
+              itemCount: data.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) =>
+                  pdflistcard(subject: data[index]),
+            ),
+          );
         },
-      )),
+      ),
     );
+  }
+}
+
+/// File-type helpers shared by the notes screens.
+enum NoteFileType { pdf, image, ppt, unknown }
+
+NoteFileType noteFileType(String url) {
+  final u = url.toLowerCase().split('?').first;
+  if (u.endsWith('.pdf')) return NoteFileType.pdf;
+  if (u.endsWith('.png') || u.endsWith('.jpg') || u.endsWith('.jpeg')) {
+    return NoteFileType.image;
+  }
+  if (u.endsWith('.ppt') || u.endsWith('.pptx')) return NoteFileType.ppt;
+  return NoteFileType.unknown;
+}
+
+IconData noteFileIcon(NoteFileType t) {
+  switch (t) {
+    case NoteFileType.pdf:
+      return Icons.picture_as_pdf_rounded;
+    case NoteFileType.image:
+      return Icons.image_rounded;
+    case NoteFileType.ppt:
+      return Icons.slideshow_rounded;
+    case NoteFileType.unknown:
+      return Icons.insert_drive_file_rounded;
+  }
+}
+
+Color noteFileColor(NoteFileType t) {
+  switch (t) {
+    case NoteFileType.pdf:
+      return Brand.danger;
+    case NoteFileType.image:
+      return Brand.accent;
+    case NoteFileType.ppt:
+      return Brand.warning;
+    case NoteFileType.unknown:
+      return Brand.textMuted;
+  }
+}
+
+/// Opens a single note file in the right viewer.
+void openNoteFile(BuildContext context, String url) {
+  switch (noteFileType(url)) {
+    case NoteFileType.pdf:
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => pdfpage(pdfUrl: url)));
+      break;
+    case NoteFileType.image:
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => imgviewer(imgurl: url)));
+      break;
+    case NoteFileType.ppt:
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => CustomPDFViewer(url: url)));
+      break;
+    case NoteFileType.unknown:
+      showAppSnack(context, 'This file type can\'t be opened in the app.',
+          error: true);
   }
 }
 
@@ -78,197 +109,115 @@ class pdflistcard extends StatelessWidget {
 
   final Map<String, dynamic> subject;
 
+  /// `file_name` is usually a JSON array of URLs, but may be a plain string.
+  List<String> _files() {
+    final raw = subject['file_name'];
+    if (raw == null) return [];
+    if (raw is List) return raw.map((e) => '$e').toList();
+    try {
+      final decoded = jsonDecode('$raw');
+      if (decoded is List) {
+        return decoded
+            .map((e) => '$e'.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+      return ['$decoded'];
+    } catch (_) {
+      final s = '$raw'.trim();
+      return s.isEmpty ? [] : [s];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool multiple = false;
-    dynamic fileName = subject['file_name'];
+    final files = _files();
+    final multiple = files.length > 1;
+    final name = clean(subject['title'], 'Untitled note');
+    final dec = clean(subject['descp']);
+    final type =
+        files.isEmpty ? NoteFileType.unknown : noteFileType(files.first);
+    final color = multiple ? Brand.primary : noteFileColor(type);
 
-    dynamic pdf = jsonDecode(fileName);
-    int length = pdf.length;
-    print(length);
-
-    if (length > 1) {
-      multiple = true;
-      print(multiple);
-      print('123');
-    } else {}
-    String Pdf = pdf.toString();
-
-    String apiResponse = "$Pdf";
-    print('Original API Response: $apiResponse');
-
-    String pdffileurl = apiResponse.replaceAll('[', '').replaceAll(']', '');
-    print('Cleaned Response: $pdffileurl');
-    bool isPdf = checkFileExtension(pdffileurl, '.pdf');
-    bool isPng = checkFileExtension(pdffileurl, '.png');
-    bool isPPt = checkFileExtension(pdffileurl, '.ppt');
-    bool isPPtx = checkFileExtension(pdffileurl, '.pptx');
-
-    bool isJpg = checkFileExtension(pdffileurl, '.jpg');
-    bool isJpeg = checkFileExtension(pdffileurl, '.jpeg');
-    String name = '${subject['title']}';
-    String dec = '${subject['descp']}';
-
-    return Card(
-      child: multiple
-          ? GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => noteinnerlist(
-                            pdf: pdf,
-                            name: name,
-                            dec: dec,
-                          )),
-                );
-              },
-              child: Container(
-                width: double.infinity,
-                height: 150,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3),
-                      ),
-                    ]),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: EdgeInsets.all(15),
-                        child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              decoration: BoxDecoration(
-                                border: Border.all(width: 2),
-                                borderRadius: BorderRadius.circular(15),
-                                // color: Colors.orange,
-                              ),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Files',
-                                      style: TextStyle(
-                                          fontSize: 30, color: Colors.orange),
-                                    ),
-                                    Text(
-                                      '$length',
-                                      style: TextStyle(
-                                          fontSize: 30, color: Colors.orange),
-                                    )
-                                  ]),
-                            )),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${subject['title']}'),
-                            Text('${subject['descp']}')
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )
-          : GestureDetector(
-              onTap: () {
-                if (isPdf) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => pdfpage(pdfUrl: pdffileurl)),
-                  );
-                }
-                if (isPng || isJpg || isJpeg) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => imgviewer(
-                              imgurl: pdffileurl,
-                            )),
-                  );
-                }
-                if (isPPt || isPPtx) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CustomPDFViewer()),
-                  );
-                }
-              },
-              child: Container(
-                width: double.infinity,
-                height: 150,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3),
-                      ),
-                    ]),
-                child: Row(children: [
-                  Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15)),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: isPdf
-                                ? Image.asset('assets/pdfdeafaulticon.png')
-                                : isPng || isJpeg || isJpg
-                                    ? Image.asset('assets/defaulticonjpg.png')
-                                    : isPPt || isPPtx
-                                        ? Image.asset(
-                                            'assets/pptdefault icon.jpeg')
-                                        : Image.asset(
-                                            'assets/image not found.png')),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                      flex: 2,
-                      child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${subject['title']}'),
-                            Text('${subject['descp']}')
-                          ],
-                        ),
-                      ))
-                ]),
-              ),
+    return AppCard(
+      padding: const EdgeInsets.all(14),
+      onTap: () {
+        if (files.isEmpty) {
+          showAppSnack(context, 'No file attached to this note.', error: true);
+        } else if (multiple) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  noteinnerlist(pdf: files, name: name, dec: dec),
             ),
+          );
+        } else {
+          openNoteFile(context, files.first);
+        }
+      },
+      child: Row(
+        children: [
+          SizedBox(
+            width: 56,
+            height: 56,
+            child: multiple
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('${files.length}',
+                              style: TextStyle(
+                                  color: color,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800)),
+                          Text('files',
+                              style: TextStyle(color: color, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  )
+                : IconBadge(icon: noteFileIcon(type), color: color, size: 56),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w700, height: 1.3),
+                ),
+                if (dec.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    dec,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13, color: Brand.textMuted, height: 1.35),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right_rounded, color: Brand.textMuted),
+        ],
+      ),
     );
   }
 
   bool checkFileExtension(String url, String extension) {
-    String lowercaseUrl = url.toLowerCase();
-    return lowercaseUrl.endsWith(extension);
+    return url.toLowerCase().endsWith(extension);
   }
 }

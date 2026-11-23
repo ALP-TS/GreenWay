@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:accordion/accordion.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/others/constants.dart';
 
 class Topiclist extends StatefulWidget {
   const Topiclist({super.key});
@@ -24,7 +24,6 @@ class _TopiclistState extends State<Topiclist> {
                 return Container(
                     child: Accordion(
                   headerBackgroundColor: Colors.orange,
-                  // contentBackgroundColor: Colors.black,
                   paddingListBottom: 0,
                   paddingListTop: 0,
                   children: [

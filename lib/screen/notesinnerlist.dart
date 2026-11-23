@@ -1,8 +1,7 @@
-// import 'package:advance_pdf_viewer_fork/advance_pdf_viewer_fork.dart';
 import 'package:flutter/material.dart';
-// import 'package:rn_plus/dashboard/dashboard.dart';
-import 'package:greenway_lms/screen/imageviewer.dart';
-import 'package:greenway_lms/screen/pdfviewer.dart';
+import 'package:greenway/screen/pdflisting.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class noteinnerlist extends StatelessWidget {
   const noteinnerlist(
@@ -10,209 +9,76 @@ class noteinnerlist extends StatelessWidget {
   final dynamic pdf;
   final String name;
   final String dec;
-  // final Map<String, dynamic> subject;
+
+  String _fileName(String url, int index) {
+    try {
+      final seg = Uri.parse(url).pathSegments;
+      if (seg.isNotEmpty) return Uri.decodeComponent(seg.last);
+    } catch (_) {}
+    return 'File ${index + 1}';
+  }
 
   @override
   Widget build(BuildContext context) {
-    int l = pdf.length;
-    print(pdf);
-    return Scaffold(
-      body: SafeArea(
-          child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                  color: const Color.fromARGB(255, 207, 203, 203), width: 2)),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * (0.15 * l),
-          child: Column(children: [
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.01,
-                  decoration: BoxDecoration(
-                      // color: Colors.amber,
-                      // color: Colors.black,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          name,
-                          style: TextStyle(fontSize: 25),
-                        ),
-                        Text(
-                          dec,
-                          style: TextStyle(fontSize: 20),
-                        )
-                      ]),
-                ),
-              ),
-            ),
-            Divider(
-                color: const Color.fromARGB(255, 207, 203, 203), thickness: 2),
-            Expanded(
-                flex: 5,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        // color: Colors.black,
-                        borderRadius: BorderRadius.circular(15)),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // Display 2 items in a row
-                      ),
-                      itemCount: pdf.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        bool isPdf = checkFileExtension(pdf[index], '.pdf');
-                        bool isPng = checkFileExtension(pdf[index], '.png');
-                        bool isPPt = checkFileExtension(pdf[index], '.ppt');
-                        bool isJpg = checkFileExtension(pdf[index], '.jpg');
-                        bool isJpeg = checkFileExtension(pdf[index], '.jpeg');
-                        return GestureDetector(
-                          onTap: () {
-                            if (isPdf) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => pdfpage(
-                                          pdfUrl: pdf[index],
+    final List<String> files =
+        pdf is List ? (pdf as List).map((e) => '$e').toList() : <String>[];
 
-                                          // 'https://databackupservices.sgp1.digitaloceanspaces.com/demo/notes/(1632117680)data-interpretation-concepts-and-formulas-splessons.pdf'
-                                          // '${subject['file_name']}', /////////////////////////////////////////////
-                                        )),
-                              );
-                            }
-                            if (isPng || isJpg || isJpeg) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => imgviewer(
-                                          imgurl: pdf[index],
-                                          // 'https://databackupservices.sgp1.digitaloceanspaces.com/demo/notes/(1632117680)data-interpretation-concepts-and-formulas-splessons.pdf'
-                                          // '${subject['file_name']}', /////////////////////////////////////////////
-                                        )),
-                              );
-                            }
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(15),
-                            child: Card(
-                              // color: Colors.orange,
-                              child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: isPdf
-                                      ? Image.asset(
-                                          'assets/pdfdeafaulticon.png')
-                                      : isPng || isJpeg || isJpg
-                                          ? Image.asset(
-                                              'assets/defaulticonjpg.png')
-                                          : isPPt
-                                              ? Image.asset(
-                                                  'assets/pptdefault icon.jpeg')
-                                              : Image.asset(
-                                                  'assets/image not found.png') /////////////////////////////////////////////
-                                  ),
+    return Scaffold(
+      appBar: gradientAppBar(name.isEmpty ? 'Notes' : name),
+      body: files.isEmpty
+          ? const EmptyView(
+              icon: Icons.folder_open_rounded,
+              title: 'No files',
+              message: 'This note doesn\'t have any files attached.',
+            )
+          : ListView(
+              padding: const EdgeInsets.all(Brand.gutter),
+              children: [
+                if (dec.isNotEmpty) ...[
+                  Text(dec,
+                      style: const TextStyle(
+                          fontSize: 14, color: Brand.textMuted, height: 1.4)),
+                  const SizedBox(height: 16),
+                ],
+                SectionHeader('${files.length} files'),
+                for (int i = 0; i < files.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Builder(builder: (context) {
+                      final type = noteFileType(files[i]);
+                      return AppCard(
+                        padding: const EdgeInsets.all(14),
+                        onTap: () => openNoteFile(context, files[i]),
+                        child: Row(
+                          children: [
+                            IconBadge(
+                              icon: noteFileIcon(type),
+                              color: noteFileColor(type),
                             ),
-                          ),
-                        );
-                        // GestureDetector(
-                        //   onTap: () {
-                        //     if (isPdf) {
-                        //       Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: (context) => PDFViewer(
-                        //                   pdfUrl: pdf[index],
-                        //                   // 'https://databackupservices.sgp1.digitaloceanspaces.com/demo/notes/(1632117680)data-interpretation-concepts-and-formulas-splessons.pdf'
-                        //                   // '${subject['file_name']}', /////////////////////////////////////////////
-                        //                 )),
-                        //       );
-                        //     }
-                        //     if (isPng || isJpg || isJpeg) {
-                        //       Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: (context) => imgviewer(
-                        //                   imgurl: pdf[index],
-                        //                   // 'https://databackupservices.sgp1.digitaloceanspaces.com/demo/notes/(1632117680)data-interpretation-concepts-and-formulas-splessons.pdf'
-                        //                   // '${subject['file_name']}', /////////////////////////////////////////////
-                        //                 )),
-                        //       );
-                        //     }
-                        //   },
-                        //   child: Container(
-                        //     width: double.infinity,
-                        //     height: 150,
-                        //     decoration: BoxDecoration(
-                        //         color: Colors.white,
-                        //         borderRadius: BorderRadius.circular(15),
-                        //         boxShadow: [
-                        //           BoxShadow(
-                        //             color: Colors.black.withOpacity(0.2),
-                        //             spreadRadius: 5,
-                        //             blurRadius: 7,
-                        //             offset: Offset(0, 3),
-                        //           ),
-                        //         ]),
-                        //     child: Row(children: [
-                        //       Expanded(
-                        //         flex: 1,
-                        //         child: Padding(
-                        //           padding: EdgeInsets.symmetric(horizontal: 10),
-                        //           child: Container(
-                        //             decoration: BoxDecoration(
-                        //                 // color: Colors.black,
-                        //                 borderRadius: BorderRadius.circular(15)),
-                        //             // height: 150,
-                        //             child: ClipRRect(
-                        //                 borderRadius: BorderRadius.circular(15),
-                        //                 child: isPdf
-                        //                     ? Image.asset('assets/pdfdeafaulticon.png')
-                        //                     : isPng || isJpeg || isJpg
-                        //                         ? Image.asset('assets/defaulticonjpg.png')
-                        //                         : isPPt
-                        //                             ? Image.asset(
-                        //                                 'assets/pptdefault icon.jpeg')
-                        //                             : Image.asset(
-                        //                                 'assets/image not found.png') /////////////////////////////////////////////
-                        //                 ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       Expanded(
-                        //           flex: 2,
-                        //           child: Container(
-                        //             child: Column(
-                        //               mainAxisAlignment: MainAxisAlignment.center,
-                        //               crossAxisAlignment: CrossAxisAlignment.start,
-                        //               children: [
-                        //                 // Text('${subject['file_name']}'),
-                        //                 Text(pdf[index])
-                        //               ],
-                        //             ),
-                        //           ))
-                        //     ]),
-                        //   ),
-                        // ),
-                      },
-                    ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                _fileName(files[i], i),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            const Icon(Icons.open_in_new_rounded,
+                                size: 20, color: Brand.textMuted),
+                          ],
+                        ),
+                      );
+                    }),
                   ),
-                ))
-          ]),
-        ),
-      )),
+              ],
+            ),
     );
   }
 
   bool checkFileExtension(String url, String extension) {
-    String lowercaseUrl = url.toLowerCase();
-    return lowercaseUrl.endsWith(extension);
+    return url.toLowerCase().endsWith(extension);
   }
 }

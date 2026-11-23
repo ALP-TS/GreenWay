@@ -1,16 +1,10 @@
-// import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/course_listing_page.dart';
-import 'package:greenway_lms/screen/coursedetailsdisplayscreen.dart';
-import 'package:greenway_lms/screen/newcoursedetailpage.dart';
-// import 'package:lms/screen/demo.dart';
-// import 'package:lms/data.dart/apicalls.dart';
-
-// import 'package:lms/data.dart/urls.dart';
-// import 'package:http/http.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/course_listing_page.dart';
+import 'package:greenway/screen/coursedetailsdisplayscreen.dart';
+import 'package:greenway/screen/newcoursedetailpage.dart';
 
 class course_category_list extends StatelessWidget {
   const course_category_list({super.key, required this.label});
@@ -19,7 +13,6 @@ class course_category_list extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: Text(label)),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -112,7 +105,6 @@ class categorylister extends StatelessWidget {
                       }
                     },
                     child:
-                        // Container()
                         allcourse_card(subject: subject),
                   ),
               ],

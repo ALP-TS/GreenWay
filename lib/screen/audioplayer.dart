@@ -1,156 +1,232 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 import 'package:lottie/lottie.dart';
 
 class audioplayer extends StatefulWidget {
-  final url;
-  audioplayer({key, required this.url}) : super(key: key);
+  final String url;
+  final String? title;
+  const audioplayer({super.key, required this.url, this.title});
+
   @override
-  _audioplayerState createState() => _audioplayerState();
+  State<audioplayer> createState() => _audioplayerState();
 }
 
 class _audioplayerState extends State<audioplayer> {
-  AudioPlayer audioPlayer = AudioPlayer();
-  Duration _duration = Duration();
-  Duration _position = Duration();
+  final AudioPlayer audioPlayer = AudioPlayer();
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
   bool isPlaying = false;
+  bool _loading = false;
+  final List<StreamSubscription> _subs = [];
 
   @override
   void initState() {
     super.initState();
-
-    audioPlayer.onDurationChanged.listen((Duration duration) {
-      setState(() {
-        _duration = duration;
-      });
-    });
-
-    audioPlayer.onPositionChanged.listen((Duration position) {
-      setState(() {
-        _position = position;
-      });
-    });
+    _subs.add(audioPlayer.onDurationChanged.listen((d) {
+      if (mounted) setState(() => _duration = d);
+    }));
+    _subs.add(audioPlayer.onPositionChanged.listen((p) {
+      if (mounted) setState(() => _position = p);
+    }));
+    _subs.add(audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          isPlaying = false;
+          _position = Duration.zero;
+        });
+      }
+    }));
   }
 
   @override
   void dispose() {
+    for (final s in _subs) {
+      s.cancel();
+    }
     audioPlayer.dispose();
     super.dispose();
   }
 
+  String get _title {
+    final t = clean(widget.title);
+    if (t.isNotEmpty) return t;
+    try {
+      final seg = Uri.parse(widget.url).pathSegments;
+      if (seg.isNotEmpty) return Uri.decodeComponent(seg.last);
+    } catch (_) {}
+    return 'Audio lesson';
+  }
+
+  String _fmt(Duration d) =>
+      '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) {
+    final maxMs = _duration.inMilliseconds.toDouble();
+    final posMs =
+        _position.inMilliseconds.toDouble().clamp(0.0, maxMs <= 0 ? 0.0 : maxMs);
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Audio Player'),
-      // ),
-      body: Stack(children: [
-        Container(
-            // color: Colors.amber,
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Image.asset(
-              'assets/backgroundlms.jpg',
-              fit: BoxFit.cover,
-            )),
-        Positioned(
-          left: MediaQuery.of(context).size.width * 0.01,
-          right: MediaQuery.of(context).size.width * 0.01,
-          top: MediaQuery.of(context).size.height * 0.1,
-          child: Column(children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25)),
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  width: MediaQuery.of(context).size.width,
-                  child: isPlaying
-                      ? LottieBuilder.asset(
-                          'assets/audioplayjson.json',
-                          width: 200,
-                          height: 200,
-                        )
-                      : Image.asset('assets/audio default icon.png')),
-            ),
-            SizedBox(
-              height: 50,
-            ),
-            Slider(
-              activeColor: Colors.orange,
-              value: _position.inMilliseconds.toDouble(),
-              min: 0.0,
-              max: _duration.inMilliseconds.toDouble(),
-              onChanged: (double value) {
-                seekToPosition(value);
-              },
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
+      appBar: gradientAppBar('Audio'),
+      body: SafeArea(
+        child: LayoutBuilder(builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight - 48),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    ' ${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}',
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 260),
+                    child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: Brand.softShadow,
+                      ),
+                      padding: const EdgeInsets.all(24),
+                      child: isPlaying
+                          ? LottieBuilder.asset('assets/audioplayjson.json')
+                          : const FittedBox(
+                              child: Icon(Icons.headphones_rounded,
+                                  color: Brand.primary),
+                            ),
+                    ),
                   ),
+                  ),
+                  const SizedBox(height: 28),
                   Text(
-                    ' ${_duration.inMinutes}:${(_duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                    _title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 20),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 7),
+                    ),
+                    child: Slider(
+                      activeColor: Brand.primary,
+                      inactiveColor: Brand.primaryLight,
+                      value: posMs,
+                      min: 0.0,
+                      max: maxMs <= 0 ? 1.0 : maxMs,
+                      onChanged: maxMs <= 0 ? null : seekToPosition,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_fmt(_position),
+                            style: const TextStyle(color: Brand.textMuted)),
+                        Text(_fmt(_duration),
+                            style: const TextStyle(color: Brand.textMuted)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        iconSize: 34,
+                        color: Brand.text,
+                        onPressed: maxMs <= 0
+                            ? null
+                            : () => _skip(const Duration(seconds: -10)),
+                        icon: const Icon(Icons.replay_10_rounded),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 76,
+                        height: 76,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: EdgeInsets.zero,
+                          ),
+                          onPressed: _loading
+                              ? null
+                              : () => isPlaying ? pauseAudio() : playAudio(),
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 3, color: Colors.white),
+                                )
+                              : Icon(
+                                  isPlaying
+                                      ? Icons.pause_rounded
+                                      : Icons.play_arrow_rounded,
+                                  size: 42),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        iconSize: 34,
+                        color: Brand.text,
+                        onPressed: maxMs <= 0
+                            ? null
+                            : () => _skip(const Duration(seconds: 10)),
+                        icon: const Icon(Icons.forward_10_rounded),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                IconButton.outlined(
-                    color: Colors.orange,
-                    iconSize: 80,
-                    onPressed: () {
-                      if (isPlaying) {
-                        pauseAudio();
-                      } else {
-                        playAudio();
-                      }
-                    },
-                    icon: isPlaying
-                        ? Icon(Icons.pause_circle_filled_rounded)
-                        : Icon(Icons.play_circle_filled_rounded)
-                    // isPlaying ?Icons.play_circle :Icons.pause_circle
-                    ),
-              ],
-            ),
-          ]),
-        ),
-      ]),
+          );
+        }),
+      ),
     );
   }
 
+  void _skip(Duration delta) {
+    var target = _position + delta;
+    if (target < Duration.zero) target = Duration.zero;
+    if (target > _duration) target = _duration;
+    audioPlayer.seek(target);
+  }
+
   Future<void> playAudio() async {
-    // String url =
-    //     "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+    setState(() => _loading = true);
     try {
-      await audioPlayer.play(UrlSource(widget.url));
-      // await audioPlayer.play(url);
-      setState(() {
-        isPlaying = true;
-      });
-      print("Audio played successfully");
+      if (_position > Duration.zero) {
+        await audioPlayer.resume();
+      } else {
+        await audioPlayer.play(UrlSource(widget.url));
+      }
+      if (mounted) setState(() => isPlaying = true);
     } catch (e) {
-      print("Error playing audio: $e");
+      debugPrint("Error playing audio: $e");
+      if (mounted) {
+        showAppSnack(context, 'This audio can\'t be played right now.',
+            error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
   void pauseAudio() {
     audioPlayer.pause();
-    setState(() {
-      isPlaying = false;
-      setState(() {
-        isPlaying = false;
-      });
-    });
+    setState(() => isPlaying = false);
   }
 
   void stopAudio() {
@@ -158,7 +234,6 @@ class _audioplayerState extends State<audioplayer> {
   }
 
   void seekToPosition(double value) {
-    Duration duration = Duration(milliseconds: value.toInt());
-    audioPlayer.seek(duration);
+    audioPlayer.seek(Duration(milliseconds: value.toInt()));
   }
 }

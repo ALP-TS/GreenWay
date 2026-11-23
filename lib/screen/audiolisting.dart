@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/audioplayer.dart';
-import 'package:greenway_lms/screen/course_listing_page.dart';
-import 'package:greenway_lms/screen/pdfviewer.dart';
-import 'package:greenway_lms/screen/videoplayer.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/audioplayer.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class audiolisting extends StatelessWidget {
   const audiolisting({super.key, required this.topicid});
@@ -13,174 +12,74 @@ class audiolisting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: getallaudio(
-            topicid), ///////////////////////////////////////////////////////////
-        // getallcourse(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            // Use the fetched data as needed
-            bool notnull = true;
-
-            List<Map<String, dynamic>> data = snapshot.data!;
-            print(data.length < 1);
-            if (data.length < 1) {
-              notnull = false;
-            }
-
-            // List image = data.toList();
-
-            // Display the data in a Container
-            return notnull
-                ? CustomScrollView(
-                    slivers: [
-                      SliverAppBar(
-                        elevation: 0,
-                        centerTitle: false,
-                        expandedHeight: 100,
-                        pinned: true,
-                        flexibleSpace: FlexibleSpaceBar(
-                            background: Container(
-                              decoration: BoxDecoration(gradient: myGradient),
-                              child: Center(
-                                child: Text(
-                                  'Audio', //////////////////////////////////////////////////////////////
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                ),
-                              ),
-                            ),
-                            stretchModes: [StretchMode.zoomBackground]),
+      appBar: gradientAppBar('Audio'),
+      body: AsyncView<List<Map<String, dynamic>>>(
+        load: () => getallaudio(topicid),
+        emptyIcon: Icons.headphones_outlined,
+        emptyTitle: 'No audio yet',
+        emptyMessage: 'Audio lessons for this topic will appear here.',
+        builder: (context, data, reload) {
+          return RefreshIndicator(
+            onRefresh: reload,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Brand.gutter),
+              itemCount: data.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final subject = data[index];
+                final title = clean(subject['file_name'], 'Audio ${index + 1}');
+                return AppCard(
+                  padding: const EdgeInsets.all(14),
+                  onTap: () {
+                    if (userId != null) {
+                      audioseen(userId!, '${subject['audio_id']}');
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            audioplayer(url: '${subject['name']}', title: title),
                       ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          return Container(
-                            padding: EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (Map<String, dynamic> subject in data)
-                                  GestureDetector(
-                                    onTap: () async {},
-                                    child: Card(
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          String? status = await audioseen(
-                                              userId!,
-                                              '${subject['audio_id']}');
-                                          print('${subject['audio_id']}');
-                                          print(status);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    audioplayer(
-                                                      url: '${subject['name']}',
-                                                      /////////////////////////////////////////////
-                                                    )),
-                                          );
-                                        },
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: 150,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.2),
-                                                  spreadRadius: 5,
-                                                  blurRadius: 7,
-                                                  offset: Offset(0, 3),
-                                                ),
-                                              ]),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 1,
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        // color: Colors.black,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(15)),
-                                                    // height: 150,
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                      child: Image.asset(
-                                                          'assets/audio default icon.png'), /////////////////////////////////////////////
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: Container(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text('name'),
-                                                      Text(
-                                                          '${subject['file_name']}')
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        }, childCount: 1),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const IconBadge(
+                          icon: Icons.headphones_rounded,
+                          color: Brand.accent,
+                          size: 52),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3),
+                        ),
                       ),
+                      const Icon(Icons.play_circle_fill_rounded,
+                          color: Brand.accent, size: 32),
                     ],
-                  )
-                : datanotfound();
-          }
+                  ),
+                );
+              },
+            ),
+          );
         },
-      )),
+      ),
     );
   }
 }
 
 class datanotfound extends StatelessWidget {
-  const datanotfound({
-    super.key,
-  });
+  const datanotfound({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: Colors.amber,
-      height: double.infinity,
-      width: double.infinity,
-      child: Center(
-        child: Image.asset(
-          'assets/no_data_found-removebg-preview (1) (1).png',
-          fit: BoxFit.fitHeight,
-        ),
-      ),
-    );
+    return const EmptyView(title: 'No data found');
   }
 }

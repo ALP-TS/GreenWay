@@ -7,16 +7,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
-import 'package:greenway_lms/carousal/widget/carousalslider.dart';
-import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
+import 'package:no_screenshot/no_screenshot.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:greenway/carousal/widget/carousalslider.dart';
+import 'package:greenway/dashboard/widget/bottomnavigationbar.dart';
+import 'package:greenway/data.dart/apicalls.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:greenway_lms/nointernet/check_conection.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/newcorsedetailpage.dart';
-import 'package:greenway_lms/splashscreen/widgets/loader.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:greenway/nointernet/check_conection.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/newcorsedetailpage.dart';
+import 'package:greenway/splashscreen/widgets/loader.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -29,16 +31,14 @@ class splashscreen extends StatefulWidget {
 
 class splashscreenState extends State<splashscreen> {
   secureScreen() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    await FlutterWindowManager.addFlags(
-        FlutterWindowManager.FLAG_KEEP_SCREEN_ON);
+    await NoScreenshot.instance.screenshotOff();
+    await WakelockPlus.enable();
   }
 
   String? appPackageName;
   @override
   void initState() {
     super.initState();
-    // secureScreen();
 
     checkConnectivity().then((isConnected) {
       if (isConnected) {
@@ -46,11 +46,6 @@ class splashscreenState extends State<splashscreen> {
           wheretogo();
           // Navigate to the home screen after the delay
 
-          // Navigator.of(context).pushReplacement(
-          //   MaterialPageRoute(
-          //     builder: (context) => Onboarding(),
-          //   ),
-          // );
         });
       } else {
         Navigator.pushReplacement(
@@ -62,19 +57,57 @@ class splashscreenState extends State<splashscreen> {
   }
 
   Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
+    final results = await Connectivity().checkConnectivity();
+    return !results.contains(ConnectivityResult.none);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(height: 200, width: 200, child: Image.asset(logo)),
-        Container(height: 100, child: loader())
-      ])),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 180, maxHeight: 180),
+                  child: Image.asset(logo, fit: BoxFit.contain),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  Instittename,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: Brand.text,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Learn anytime, anywhere',
+                  style: TextStyle(fontSize: 14, color: Brand.textMuted),
+                ),
+                const SizedBox(height: 40),
+                const loader(),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  Future<List<String>> _safeCategories() async {
+    try {
+      return await coursecategory();
+    } catch (e) {
+      debugPrint('coursecategory failed: $e');
+      return [];
+    }
   }
 
   void wheretogo() async {
@@ -90,7 +123,6 @@ class splashscreenState extends State<splashscreen> {
       print('AppName: $appName');
 
       print('PackageName: $packageName');
-      // print('appPackageName:$appPackageName');
       print('Version: $version');
       print('BuildNumber: $buildNumber');
     }
@@ -101,7 +133,6 @@ class splashscreenState extends State<splashscreen> {
       rememberUser = sharedpref.getBool(KEYLOGIN);
 
       studentId = sharedpref.getString(id);
-      // print(studentId);
       userId = sharedpref.getString(usrid);
 
       if (rememberUser != null) {
@@ -117,11 +148,8 @@ class splashscreenState extends State<splashscreen> {
           String? status = await userisblock(userId!);
           if (status == '0') {
             print('block status is $status');
-            // void exitApp() {
             print('exit');
             _showDialog(context);
-            // SystemNavigator.pop();
-            // }
           } else {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -130,8 +158,8 @@ class splashscreenState extends State<splashscreen> {
             );
           }
         } else {
-          final categorydata = await coursecategory();
-          print(categorydata);
+          final categorydata = await _safeCategories();
+          if (!mounted) return;
 
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
@@ -186,7 +214,6 @@ class splashscreenState extends State<splashscreen> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               ElevatedButton(
                 onPressed: () {
-                  // exit(0);
                   print('object');
                   _openStoreAppPage(context);
                   // Close the dialog
@@ -207,8 +234,6 @@ class splashscreenState extends State<splashscreen> {
   }
 
   _openStoreAppPage(BuildContext context) async {
-    // var playstoreUrl =
-    // Uri.parse("market://details?id=");
     var playstoreUrl = Uri.parse(
         "https://play.google.com/store/apps/details?id=$appPackageName");
     print('url is $playstoreUrl');
@@ -218,12 +243,6 @@ class splashscreenState extends State<splashscreen> {
         mode: LaunchMode.externalApplication,
       );
     } catch (e) {
-      // CustomSnackBar(
-      //   context: context,
-      //   content: CustomSnackBar.whiteCenterText(
-      //     e.toString(),
-      //   ),
-      // ).showError();
     }
   }
 
@@ -234,45 +253,13 @@ class splashscreenState extends State<splashscreen> {
     String version = packageInfo.version;
     String buildNumber = packageInfo.buildNumber;
 
-    // setState(() {
-    //   appPackageName = packageName;
-    // });
-
     if (kDebugMode) {
       print('AppName: $appName');
       print('PackageName: $packageName');
-      // print('appPackageName:$appPackageName');
       print('Version: $version');
       print('BuildNumber: $buildNumber');
     }
 
-    //   ApiRequest request = ApiRequest(
-    //       type: ApiType.get,
-    //       uri: Constants.checkVersion,
-    //       params: <String, dynamic>{
-    //         'version': version,
-    //       });
-
-    //   ApiResponse response = await request.send();
-
-    //   if (response.is200ok) {
-    //     dynamic body = response.jsonBody;
-    //     if (body['status'] == 'success' && body['message'] == 'Successfully') {
-    //       setState(() {
-    //         showUpdatePopup = body['data'] == 'show';
-    //       });
-    //     }
-    //     if (showUpdatePopup) {
-    //       updatePopup.show();
-    //     } else {
-    //       delayedLogin();
-    //     }
-    //   }
   }
 }
 
-// @override
-// Widget build(BuildContext context) {
-//   // TODO: implement build
-//   throw UnimplementedError();
-// }

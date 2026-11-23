@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/Profilepage/widget/button.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/Profilepage/widget/button.dart';
+import 'package:greenway/others/constants.dart';
 
 ///Dart 2.17
 /// Dart
@@ -36,7 +36,6 @@ class avathar_container extends StatelessWidget {
               onPressed: () {},
               icon: Icon(Icons.email_outlined, color: Colors.black),
               label: Text('email', style: TextStyle(color: Colors.black))),
-          // button_profile()
         ],
       ),
     );

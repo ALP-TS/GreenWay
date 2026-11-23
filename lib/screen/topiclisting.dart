@@ -1,186 +1,202 @@
 import 'package:flutter/material.dart';
-import 'package:accordion/accordion.dart';
 
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/data.dart/topiclistingmodel/datum.dart';
-
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/audiolisting.dart';
-import 'package:greenway_lms/screen/pdflisting.dart';
-import 'package:greenway_lms/screen/videolisting.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/data.dart/topiclistingmodel/datum.dart';
+import 'package:greenway/screen/audiolisting.dart';
+import 'package:greenway/screen/pdflisting.dart';
+import 'package:greenway/screen/videolisting.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class topiclisting extends StatelessWidget {
-  const topiclisting({super.key, required this.subid});
+  const topiclisting({super.key, required this.subid, this.title = 'Topics'});
   final String subid;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-          flexibleSpace: Container(
-        decoration: BoxDecoration(gradient: myGradient),
-        height: 100,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 10),
+      appBar: gradientAppBar(title),
+      body: AsyncView<List<Datumtopic>>(
+        load: () => gettopic(subid),
+        errorAsEmpty: true,
+        emptyIcon: Icons.topic_outlined,
+        emptyTitle: 'No topics yet',
+        emptyMessage: 'Topics for this subject will appear here once added.',
+        builder: (context, datatopic, reload) {
+          return RefreshIndicator(
+            onRefresh: reload,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Brand.gutter),
+              itemCount: datatopic.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) =>
+                  _TopicCard(topic: datatopic[index], number: index + 1),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TopicCard extends StatelessWidget {
+  const _TopicCard({required this.topic, required this.number});
+  final Datumtopic topic;
+  final int number;
+
+  @override
+  Widget build(BuildContext context) {
+    final chapter = clean(topic.chapter, 'Chapter $number');
+    final topics = clean(topic.topics);
+    final description = clean(topic.description);
+    final topicId = '${topic.topicId}';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Brand.radius),
+        border: Border.all(color: Brand.border),
+        boxShadow: Brand.softShadow,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: CircleAvatar(
+            radius: 18,
+            backgroundColor: Brand.primaryLight,
             child: Text(
-              'Topics',
-              style: TextStyle(color: Colors.white, fontSize: 25),
+              '$number',
+              style: const TextStyle(
+                  color: Brand.primary, fontWeight: FontWeight.w700),
+            ),
+          ),
+          title: Text(
+            chapter,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          subtitle: topics.isEmpty
+              ? null
+              : Text(
+                  topics,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(fontSize: 13, color: Brand.textMuted),
+                ),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (topics.isNotEmpty) ...[
+              const Text('Topics',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Brand.textMuted,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(topics, style: const TextStyle(fontSize: 14, height: 1.4)),
+              const SizedBox(height: 10),
+            ],
+            if (description.isNotEmpty) ...[
+              const Text('Description',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Brand.textMuted,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(description,
+                  style: const TextStyle(fontSize: 14, height: 1.4)),
+              const SizedBox(height: 14),
+            ],
+            Row(
+              children: [
+                _ResourceButton(
+                  icon: Icons.play_circle_outline_rounded,
+                  label: 'Videos',
+                  color: Brand.primary,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Videolisting(topicid: topicId)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _ResourceButton(
+                  icon: Icons.description_outlined,
+                  label: 'Notes',
+                  color: Brand.warning,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => notelisting(topicid: topicId)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _ResourceButton(
+                  icon: Icons.headphones_rounded,
+                  label: 'Audio',
+                  color: Brand.accent,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => audiolisting(topicid: topicId)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ResourceButton extends StatelessWidget {
+  const _ResourceButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Material(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Brand.radiusSm),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Brand.radiusSm),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(label,
+                      style: TextStyle(
+                          color: color,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ],
             ),
           ),
         ),
-      )),
-      body: FutureBuilder<List<Datumtopic>>(
-        future: gettopic(subid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('No topic AvailBle'));
-          } else if (snapshot.hasData) {
-            // return Center(child: CircularProgressIndicator());
-            List<Datumtopic> datatopic = snapshot.data!;
-            // print(snapshot.data);
-            // print('hello');
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: PageScrollPhysics(),
-              itemCount: datatopic.length,
-              itemBuilder: ((context, index) {
-                Datumtopic datumtopic = datatopic[index];
-                return Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Container(
-                      // color: Colors.amber,
-                      child: Accordion(
-                    rightIcon: Icon(Icons.keyboard_arrow_down_sharp),
-                    headerBorderColor: Color.fromARGB(255, 189, 186, 186),
-                    headerBorderWidth: 10,
-                    contentBorderColor: Color.fromARGB(255, 228, 226, 226),
-                    contentBorderWidth: 2,
-                    headerBackgroundColor: Colors.white,
-                    // contentBackgroundColor: Colors.black,
-                    paddingListBottom: 0,
-                    paddingListTop: 0,
-                    children: [
-                      AccordionSection(
-                        headerBorderWidth: 2,
-                        contentBorderWidth: 2,
-                        header: Container(
-                          // decoration: BoxDecoration(gradient: myGradient),
-                          height: MediaQuery.of(context).size.height * 0.05,
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(children: [
-                                  Text(
-                                    '${datumtopic.chapter}' ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    softWrap: true,
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ]),
-                              ],
-                            ),
-                          ),
-                        ),
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Topics:${datumtopic.topics}' ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              softWrap: true,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text(
-                              'Description:${datumtopic.description}' ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              softWrap: true,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.all(15),
-                                    child: TextButton.icon(
-                                        onPressed: () {
-                                          // String id = ;
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  Videolisting(
-                                                topicid:
-                                                    '${datumtopic.topicId}',
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        icon:
-                                            Icon(Icons.video_library_outlined),
-                                        label: Text('Videos'))),
-                                Padding(
-                                  padding: EdgeInsets.all(15),
-                                  child: TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => notelisting(
-                                                  topicid:
-                                                      '${datumtopic.topicId}',
-                                                )),
-                                      );
-                                    },
-                                    icon: Icon(Icons.note_add_sharp),
-                                    label: Text('Notes'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.all(15),
-                                  child: TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => audiolisting(
-                                            topicid: '${datumtopic.topicId}',
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: Icon(Icons.audio_file_outlined),
-                                    label: Text('Audios'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
-                );
-              }),
-            );
-          } else {
-            return Text('No data available');
-          }
-        },
       ),
     );
   }

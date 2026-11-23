@@ -1,404 +1,292 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:greenway_lms/carousal/caroualpage.dart';
-import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-// import 'package:greenway_lms/dashboard/dashboard.dart';
-// import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:greenway_lms/data.dart/urls.dart';
-import 'package:greenway_lms/others/constants.dart';
-// import 'package:rn_plus/screen/chatorlmscreen.dart';
+import 'package:greenway/dashboard/widget/bottomnavigationbar.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// import 'package:lms/data/data.dart';
-
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late Color myColor;
-  late Size mediaSize;
   bool tapped = false;
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  bool _obscure = true;
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // String login;
-    myColor = Theme.of(context).primaryColor;
-    mediaSize = MediaQuery.of(context).size;
-    return Container(
-      // decoration: BoxDecoration(
-      //   image: DecorationImage(
-      //     image: const AssetImage("assets/images/bg.png"),
-      //     fit: BoxFit.cover,
-      //     colorFilter:
-      //         ColorFilter.mode(myColor.withOpacity(0.2), BlendMode.dstATop),
-      //   ),
-      // ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Stack(children: [
-          Positioned(top: 80, child: _buildTop()),
-          Positioned(bottom: 0, child: _buildBottom()),
-        ]),
+    return Scaffold(
+      backgroundColor: Brand.background,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Transform.translate(
+              offset: const Offset(0, -36),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Brand.gutter),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: _buildForm(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTop() {
-    return SizedBox(
-      width: mediaSize.width,
+  Widget _buildHeader(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(24, top + 32, 24, 64),
+      decoration: const BoxDecoration(
+        gradient: Brand.gradient,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 50),
-            child: Image(
-              image: AssetImage(logo),
-              height: 150,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
             ),
+            child: Image.asset(logo, height: 84, width: 84),
           ),
+          const SizedBox(height: 16),
           Text(
             Instittename,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          )
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Sign in to continue learning',
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.85), fontSize: 14),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBottom() {
-    return Stack(
-      children: [
-        SizedBox(
-          width: mediaSize.width,
-          height: 440,
-          child: Card(
-            color: kblue,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            )),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: _buildForm(),
+  Widget _buildForm() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: Brand.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Welcome back',
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w700, color: Brand.text),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Enter your username and password',
+            style: TextStyle(fontSize: 14, color: Brand.textMuted),
+          ),
+          const SizedBox(height: 24),
+          _label('Username'),
+          TextField(
+            controller: usernameController,
+            textInputAction: TextInputAction.next,
+            autocorrect: false,
+            decoration: const InputDecoration(
+              hintText: 'Your username',
+              prefixIcon: Icon(Icons.person_outline_rounded),
             ),
           ),
-        ),
-        Center(
-          child: SizedBox(
-            child: Opacity(
-              opacity:
-                  0.2, // Set the opacity value between 0.0 and 1.0 (0.0 means fully transparent, 1.0 means fully opaque)
-              child: Image.asset(
-                'assets/img4.png',
-                height: 400,
+          const SizedBox(height: 16),
+          _label('Password'),
+          TextField(
+            controller: passwordController,
+            obscureText: _obscure,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _onLogin(),
+            decoration: InputDecoration(
+              hintText: 'Your password',
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              suffixIcon: IconButton(
+                icon: Icon(_obscure
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined),
+                onPressed: () => setState(() => _obscure = !_obscure),
               ),
             ),
           ),
-        ),
-        SizedBox(
-          width: mediaSize.width,
-          height: 440,
-          child: Card(
-            color: kblue.withOpacity(0.5),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            )),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: _buildForm(),
+          const SizedBox(height: 28),
+          ElevatedButton(
+            onPressed: tapped ? null : _onLogin,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Brand.accent.withValues(alpha: 0.7),
             ),
+            child: tapped
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.5, color: Colors.white),
+                  )
+                : const Text('Login'),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Welcome",
-          style: TextStyle(
-              color: Colors.white, fontSize: 32, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 60),
-        Center(
-          child: Column(
-            children: [
-              _buildGreyText("Username"),
-              _buildInputField(usernameController),
-              const SizedBox(height: 20),
-              _buildGreyText("Password"),
-              _buildInputFieldpass(passwordController),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 40,
-        ),
-        Center(child: _buildProced()),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _buildGreyText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 15,
-        fontFamily: 'Inter',
-        fontWeight: FontWeight.w700,
+        ],
       ),
     );
   }
 
-  Widget _buildInputField(TextEditingController controller,
-      {bool isnumber = false}) {
-    TextInputType keyboardType =
-        isnumber ? TextInputType.number : TextInputType.text;
-    List<TextInputFormatter>? inputFormatters =
-        isnumber ? [FilteringTextInputFormatter.digitsOnly] : null;
-
-    return Container(
-      width: 279,
-      height: 37,
-      decoration: ShapeDecoration(
-        color: Colors.white.withOpacity(0.33),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: TextField(
-          style: TextStyle(color: Colors.white),
-          textAlign: TextAlign.center,
-          controller: controller,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            // Remove the underline
-          ),
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          text,
+          style: const TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w600, color: Brand.text),
         ),
-      ),
+      );
+
+  void _stopLoading() {
+    if (mounted) setState(() => tapped = false);
+  }
+
+  Future<void> _saveAndEnter({bool withDevice = false}) async {
+    var sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setBool(KEYLOGIN, true);
+    rememberUser = true; // keep in-memory login state in sync
+    sharedPref.setString(id, studentId!);
+    sharedPref.setString(usrid, userId!);
+    if (withDevice) sharedPref.setString(Dceid, newdeviceid!);
+    if (!mounted) return;
+    // Dashboard becomes the root, so Back doesn't return to Explore/Login.
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const navigationbar()),
+      (route) => false,
     );
   }
 
-  Widget _buildInputFieldpass(TextEditingController controller,
-      {bool isnumber = false}) {
-    TextInputType keyboardType =
-        isnumber ? TextInputType.number : TextInputType.text;
-    List<TextInputFormatter>? inputFormatters =
-        isnumber ? [FilteringTextInputFormatter.digitsOnly] : null;
+  Future<void> _onLogin() async {
+    if (tapped) return;
+    FocusScope.of(context).unfocus();
+    if (usernameController.text.trim().isEmpty ||
+        passwordController.text.isEmpty) {
+      showMessage(context, 'Please enter your username and password');
+      return;
+    }
+    setState(() => tapped = true);
 
-    return Container(
-      width: 279,
-      height: 37,
-      decoration: ShapeDecoration(
-        color: Colors.white.withOpacity(0.33),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: TextField(
-          obscureText: true,
-          textAlign: TextAlign.center,
-          controller: controller,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            // Remove the underline
-          ),
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-        ),
-      ),
-    );
-  }
+    try {
+      final result = await login(
+          usernameController.text.toString(), passwordController.text.toString());
 
-  Widget _buildProced() {
-    return SizedBox(
-      width: 247,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: () async {
-          if(tapped==false){
-            setState(() {
-            tapped = true;
-            });
-              final _result = await login(usernameController.text.toString(),
-              passwordController.text.toString());
-             print(_result);
+      if (result?.status != "success") {
+        _stopLoading();
+        if (mounted) showMessage(context, 'Invalid credentials');
+        return;
+      }
 
-            if (_result?.status == "success") {
-            setState(() {
-              password_status = _result?.status;
-              loginmessage = _result?.message;
-              studentId = _result?.data?.studentId;
-              userId = _result?.data?.userId;
-              classId = _result?.data?.classId;
-              stuname = _result?.data?.name;
-              phone = _result?.data?.phone;
-              expireDate = _result?.data?.expireDate;
-              seenVideo = _result?.data?.seenVideo;
-              ip = _result?.data?.ip;
-              deviceId = _result?.data?.deviceId;
-              status = _result?.data?.status;
-              utype = _result?.data?.utype;
-            });
-            securemode = await getsecuremod();
-            final _status = await fee_status(userId!);
-            newdeviceid = await getDeviceId();
-            print(newdeviceid);
-            // print('Device ID: $newdeviceid');
+      password_status = result?.status;
+      loginmessage = result?.message;
+      studentId = result?.data?.studentId;
+      userId = result?.data?.userId;
+      classId = result?.data?.classId;
+      stuname = result?.data?.name;
+      phone = result?.data?.phone;
+      expireDate = result?.data?.expireDate;
+      seenVideo = result?.data?.seenVideo;
+      ip = result?.data?.ip;
+      deviceId = result?.data?.deviceId;
+      status = result?.data?.status;
+      utype = result?.data?.utype;
 
-            // print(_status?.status);
-            // print(_status?.message);
-            // print(_status!.data?.status);
-            setState(() {
-              feestatus = _status?.data?.status;
+      securemode = await getsecuremod();
+      final feeStatus = await fee_status(userId!);
+      newdeviceid = await getDeviceId();
+      feestatus = feeStatus?.data?.status;
 
-              // login = usernameController.text;
-            });
-            print('$deviceId nn');
-            print('$newdeviceid yy');
-            // print(securemode);
-            if (securemode == 'privent_m_l' || securemode == 'a_2d_s_n') {
-              // if (securemode == 'none') {
-              print('$deviceId nn');
-              print('$newdeviceid yy');
-              print(userId);
-              print('pk');
-              if (deviceId == '' || deviceId == null) {
-                String? update = await deviceidupdate(userId!, newdeviceid);
-                print('updated $update');
-                setState(() {
-                  tapped = false;
-                });
-                if (update == 'something worng for insertion') {
-                  showMessage(
-                      context, 'Your device is already login with other account,Yourdevide id is $newdeviceid');
-                }else if(update =="Data insert Successfully"){
-                  var sharedPref = await SharedPreferences.getInstance();
-
-                  sharedPref.setBool(KEYLOGIN, true);
-
-                  sharedPref.setString(id, studentId!);
-                  sharedPref.setString(usrid, userId!);
-                  sharedPref.setString(Dceid, newdeviceid!);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            navigationbar()), // MaterialPageRoute(builder: (context) => navigationbar()),
-                  );
-
-                }else{
-                  showMessage(
-                      context, 'Server Error Please try again Later');
-                  
-
-                }
-                
-                print('uooooppdatttd$update');
-                print(newdeviceid);
-              } else {
-                print('$deviceId nn');
-                print('$newdeviceid yy');
-                if (deviceId == newdeviceid) {
-                  var sharedPref = await SharedPreferences.getInstance();
-
-                  sharedPref.setBool(KEYLOGIN, true);
-
-                  sharedPref.setString(id, studentId!);
-                  sharedPref.setString(usrid, userId!);
-                  sharedPref.setString(Dceid, newdeviceid!);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            navigationbar()), // MaterialPageRoute(builder: (context) => navigationbar()),
-                  );
-                } else {
-                  setState(() {
-                    tapped = false;
-                  });
-                  showMessage(
-                      context, 'please login with your previous device');
-                }
-              }
-            } else {
-              var sharedPref = await SharedPreferences.getInstance();
-              sharedPref.setBool(KEYLOGIN, true);
-              sharedPref.setString(id, studentId!);
-              sharedPref.setString(usrid, userId!);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        navigationbar()), // MaterialPageRoute(builder: (context) => navigationbar()),
-              );
-            }
-
-            // final SharedPreferences sharedPreferences =
-            //     (await SharedPreferences.getInstance) as SharedPreferences;
-            // sharedPreferences.setString('email', usernameController.text);
-           } else {
-            setState(() {
-              tapped = false;
-            });
-            showMessage(context, 'Invalid credentials');
-            debugPrint("Invalid credentials");
-           }
+      if (securemode == 'privent_m_l' || securemode == 'a_2d_s_n') {
+        if (newdeviceid == null || newdeviceid!.isEmpty) {
+          _stopLoading();
+          if (mounted) {
+            showMessage(context,
+                'Could not read this device\'s ID. Please restart the app and try again.');
           }
-          
-        },
-        style: ElevatedButton.styleFrom(
-          shape: const StadiumBorder(),
-          elevation: 20,
-          backgroundColor: korange,
-          shadowColor: myColor,
-        ),
-        child:
-         tapped  ?const SpinKitFadingCircle(
-              color: Colors.blue,
-              size: 30.0,
-              // lineWidth: 3.0,
-            )
-         :const Text("PROCEED"),
-      ),
-    );
+          return;
+        }
+        if (deviceId == '' || deviceId == null) {
+          String? update = await deviceidupdate(userId!, newdeviceid);
+          _stopLoading();
+          if (!mounted) return;
+          if (update == 'something worng for insertion') {
+            showMessage(context,
+                'This device is already logged in with another account. Your device ID is $newdeviceid');
+          } else if (update == "Data insert Successfully") {
+            await _saveAndEnter(withDevice: true);
+          } else {
+            debugPrint('store_device_id unexpected reply: $update');
+            showMessage(context,
+                'Server error (${update ?? 'no response'}). Please try again later.');
+          }
+        } else if (deviceId == newdeviceid) {
+          await _saveAndEnter(withDevice: true);
+        } else {
+          _stopLoading();
+          if (mounted) {
+            showMessage(context, 'Please login with your previous device');
+          }
+        }
+      } else {
+        await _saveAndEnter();
+      }
+    } catch (e) {
+      debugPrint('Login failed: $e');
+      _stopLoading();
+      if (mounted) {
+        showMessage(context,
+            'Unable to login right now. Please check your connection and try again.');
+      }
+    }
   }
 }
 
 void showMessage(BuildContext context, String msg) {
-  // Create an AlertDialog
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Warning'),
-        content: Text(msg),
+        icon: const Icon(Icons.info_outline_rounded,
+            color: Brand.warning, size: 36),
+        title: const Text('Notice'),
+        content: Text(msg, textAlign: TextAlign.center),
         actions: [
           TextButton(
-            onPressed: () {
-              // Close the dialog
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
           ),
         ],
       );

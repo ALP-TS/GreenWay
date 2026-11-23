@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/dashboard/widget/bottomnavigationbar.dart';
-import 'package:greenway_lms/screen/chatscreen.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/dashboard/widget/bottomnavigationbar.dart';
+import 'package:greenway/screen/chatscreen.dart';
 import 'package:lottie/lottie.dart';
 
 class chatorlms extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/others/constants.dart';
 
 String apiKey = 'b7174c64-15f7-4db4-8938-15bc7c6ac796';
 

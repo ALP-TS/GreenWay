@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:lms/carousal/caroualpage.dart';
 
 //login model variable
 String? student_Id;
@@ -21,7 +20,7 @@ String? student;
 String? specification;
 String? utype;
 DateTime? today;
-String? baseurl = 'https://lms.coursenrich.com/greenway/api';
+String? baseurl = 'https://greenwaylms.com/api';
 LinearGradient myGradient = LinearGradient(
   colors: [
     Color.fromRGBO(25, 137, 223, 0.887),
@@ -84,8 +83,6 @@ String timeconvert(dynamic time) {
     int month = date.month;
     int day = date.day;
     String Date = '$day-$month-$year';
-    // print('$day-$month-$year');
-    // print(Date);
     return Date; // Output: 2024-03-02 01:50:00.000
   } else {
     return "Timestamp string is null.";
@@ -97,7 +94,6 @@ Widget buildText(String text, Color textColor, double fontSize) {
     text, textAlign: TextAlign.center, // Pass the text parameter here
 
     maxLines: 12,
-    // softWrap: true,
     overflow: TextOverflow.ellipsis,
     style: TextStyle(
       color: textColor,

@@ -1,122 +1,93 @@
 import 'package:flutter/material.dart';
 
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/data.dart/getsubjectmodel/datum.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/topiclisting.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/data.dart/getsubjectmodel/datum.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/topiclisting.dart';
+import 'package:greenway/theme/app_theme.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 class subjectlisting extends StatelessWidget {
   const subjectlisting({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
     return Scaffold(
-      appBar: AppBar(
-          flexibleSpace: Container(
-        decoration: BoxDecoration(gradient: myGradient),
-        height: 100,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Text(
-              'couurse name',
-              style: TextStyle(color: Colors.white, fontSize: 25),
-            ),
-          ),
-        ),
-      )),
-      body: FutureBuilder<List<Datum>>(
-        future: getsubjects(classId!),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            List<Datum> data = snapshot.data!;
-            print(snapshot.data?.toString());
-            print('hello');
-
-            return ListView.builder(
-              // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 2, // Number of columns
-              //   // crossAxisSpacing: 10.0, // Spacing between columns
-              //   // mainAxisSpacing: 10.0, // Spacing between rows
-              // ),
+      appBar: gradientAppBar('Subjects'),
+      body: AsyncView<List<Datum>>(
+        load: () => getsubjects(classId ?? ''),
+        emptyIcon: Icons.menu_book_outlined,
+        emptyTitle: 'No subjects yet',
+        emptyMessage:
+            'Subjects for your course will appear here once they are added.',
+        builder: (context, data, reload) {
+          return RefreshIndicator(
+            onRefresh: reload,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Brand.gutter),
               itemCount: data.length,
-              // itemCount: 100,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (BuildContext context, int index) {
-                Datum datum = data[index];
-                // print('${datum.subjectId}');
-                return GridTile(
-                  child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => topiclisting(
-                              subid: '${datum.subjectId}',
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: _height * 0.1,
-                        decoration: BoxDecoration(
-                          border: Border(
-                              left: BorderSide(color: Colors.orange, width: 3)),
-                          color: Colors.white,
-                        ),
-                        width: double.infinity,
-                        child: Container(
-                          height: _height,
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(color: Colors.grey),
-                                  right: BorderSide(color: Colors.grey))),
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                                //crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      '${datum.name}',
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Text(
-                                        'Topic Count :${datum.tCount}',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                          ),
+                final datum = data[index];
+                final count = datum.tCount ?? 0;
+                return AppCard(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => topiclisting(
+                          subid: '${datum.subjectId}',
+                          title: clean(datum.name, 'Topics'),
                         ),
                       ),
-                    ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      IconBadge(
+                        icon: Icons.auto_stories_rounded,
+                        color: _palette[index % _palette.length],
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              clean(datum.name, 'Untitled subject'),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$count ${count == 1 ? 'topic' : 'topics'}',
+                              style: const TextStyle(
+                                  fontSize: 13, color: Brand.textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right_rounded,
+                          color: Brand.textMuted),
+                    ],
                   ),
                 );
               },
-            );
-          } else {
-            return Text('No data available');
-          }
+            ),
+          );
         },
       ),
     );
   }
 }
+
+const _palette = [
+  Brand.primary,
+  Brand.accent,
+  Brand.warning,
+  Color(0xFF7C3AED),
+  Color(0xFFDB2777),
+];

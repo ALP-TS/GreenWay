@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:greenway_lms/dashboard/dashboard.dart';
-import 'package:greenway_lms/data.dart/apicalls.dart';
-import 'package:greenway_lms/loginpage/loginpage.dart';
-import 'package:greenway_lms/carousal/caroualpage.dart';
-import 'package:greenway_lms/others/constants.dart';
-import 'package:greenway_lms/screen/course_listing_page.dart';
-import 'package:greenway_lms/screen/newcorsedetailpage.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-// import 'package:flutter/material.dart';
+import 'package:greenway/data.dart/apicalls.dart';
+import 'package:greenway/loginpage/loginpage.dart';
+import 'package:greenway/carousal/caroualpage.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/screen/newcorsedetailpage.dart';
+import 'package:greenway/theme/app_theme.dart';
 
 class Onboarding extends StatefulWidget {
+  const Onboarding({super.key});
+
   @override
-  _OnboardingState createState() => _OnboardingState();
+  State<Onboarding> createState() => _OnboardingState();
 }
 
 class _OnboardingState extends State<Onboarding> {
   int currentIndex = 0;
+  bool _loading = false;
   late PageController _controller;
 
-  get actions => null;
   @override
   void initState() {
     _controller = PageController(initialPage: 0);
@@ -32,177 +30,234 @@ class _OnboardingState extends State<Onboarding> {
     super.dispose();
   }
 
+  bool get _isLast => currentIndex == contents.length - 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _controller,
-              itemCount: contents.length,
-              onPageChanged: (int index) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
-              itemBuilder: (_, i) {
-                return buildPageItem(i);
-              },
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+              child: Row(
+                children: [
+                  Image.asset(logo, height: 36),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      Instittename,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Brand.text),
+                    ),
+                  ),
+                  AnimatedOpacity(
+                    opacity: _isLast ? 0 : 1,
+                    duration: const Duration(milliseconds: 200),
+                    child: TextButton(
+                      onPressed: _isLast
+                          ? null
+                          : () => _controller.animateToPage(
+                                contents.length - 1,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              ),
+                      child: const Text('Skip'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          buildDots(),
-          const SizedBox(height: 100),
-          buildContinueButton(),
-          const SizedBox(height: 10),
-        ],
+            Expanded(
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: contents.length,
+                onPageChanged: (int index) {
+                  setState(() => currentIndex = index);
+                },
+                itemBuilder: (_, i) => buildPageItem(i),
+              ),
+            ),
+            buildDots(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: buildContinueButton(),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              child: const Text('Already have an account? Login'),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
 
-  Widget buildPageItem(int index) {
-    return Padding(
-      padding: const EdgeInsets.all(30),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              const SizedBox(
-                width: 1,
-              ),
-              TextButton(
-                onPressed: () {
-                  if (index == contents.length - 1) {
-                    // If on the last content page, navigate to the LoginPage
+  static const _slideIcons = [
+    Icons.school_rounded,
+    Icons.groups_rounded,
+    Icons.favorite_rounded,
+  ];
+  static const _slideGradients = [
+    Brand.gradient,
+    Brand.greenGradient,
+    Brand.violetGradient,
+  ];
 
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  } else {
-                    // Otherwise, navigate to the last content page
-                    _controller.animateToPage(
-                      contents.length - 1,
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                child: Text(
-                  index == contents.length - 1 ? "" : "Skip >>",
-                  style: TextStyle(
-                    color: korange,
-                    fontSize: 18,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                  ),
+  /// Text-only slide: a large icon emblem above the welcome message.
+  Widget buildPageItem(int index) {
+    final icon = _slideIcons[index % _slideIcons.length];
+    final gradient = _slideGradients[index % _slideGradients.length];
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _SlideEmblem(icon: icon, gradient: gradient),
+              const SizedBox(height: 36),
+              FadingText(text: contents[index].title),
+              if (contents[index].discription.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  contents[index].discription,
+                  textAlign: TextAlign.center,
+                  style:
+                      const TextStyle(fontSize: 14, color: Brand.textMuted),
                 ),
-              ),
+              ],
+              const SizedBox(height: 16),
             ],
           ),
-          const SizedBox(
-            height: 50,
-          ),
-          FadingText(
-            text: contents[index].title,
-          ),
-          // BouncingText(),
-          // Text(
-          //   contents[index].title,
-          //   style: const TextStyle(
-          //     fontSize: 25,
-          //     fontWeight: FontWeight.bold,
-          //   ),
-          // ),
-          const SizedBox(height: 20),
-          Text(
-            contents[index].discription,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          // Fadingimg(text: contents[index].image,),
-          FadeInImageExample(
-            url: contents[index].image,
-          ),
-          // Image.asset(
-          //   contents[index].image,
-          //   height: 300,
-          // ),
-        ],
+        ),
       ),
     );
   }
 
   Widget buildDots() {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          contents.length,
-          (index) => buildDot(index),
-        ),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(contents.length, (index) => buildDot(index)),
     );
   }
 
   Widget buildDot(int index) {
-    return Container(
-      height: 10,
-      width: currentIndex == index ? 25 : 10,
-      margin: EdgeInsets.only(right: 5),
+    final active = currentIndex == index;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      height: 8,
+      width: active ? 24 : 8,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: kblue,
+        color: active ? Brand.primary : Brand.border,
       ),
     );
   }
 
   Widget buildContinueButton() {
-    return Container(
-      width: 247,
-      height: 52,
+    return SizedBox(
+      width: double.infinity,
       child: ElevatedButton(
-        child: Text(
-          currentIndex == contents.length - 1 ? "Get Start" : "Next",
-          style: TextStyle(
-            color: Color(0xFFFFFFFF),
-            fontSize: 20,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-          ),
+        onPressed: _loading
+            ? null
+            : () async {
+                if (_isLast) {
+                  setState(() => _loading = true);
+                  List<String> categorydata = [];
+                  try {
+                    categorydata = await coursecategory();
+                  } catch (e) {
+                    debugPrint('coursecategory failed: $e');
+                  }
+                  List<String> pic = await getsliderimage();
+                  if (!mounted) return;
+                  img = pic;
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          newcourse(categorydata: categorydata),
+                    ),
+                  );
+                } else {
+                  _controller.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              },
+        child: _loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white),
+              )
+            : Text(_isLast ? 'Get Started' : 'Next'),
+      ),
+    );
+  }
+}
+
+/// Layered circles with a gradient icon, used instead of slide pictures.
+class _SlideEmblem extends StatelessWidget {
+  const _SlideEmblem({required this.icon, required this.gradient});
+  final IconData icon;
+  final LinearGradient gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = gradient.colors.last;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.85, end: 1),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutBack,
+      builder: (context, scale, child) =>
+          Transform.scale(scale: scale, child: child),
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: tint.withValues(alpha: 0.06),
         ),
-        onPressed: () async {
-          if (currentIndex == contents.length - 1) {
-            final categorydata = await coursecategory();
-            print(categorydata);
-            List<String> pic = await getsliderimage();
-            setState(() {
-              img = pic;
-            });
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => newcourse(
-                  categorydata: categorydata,
+        alignment: Alignment.center,
+        child: Container(
+          width: 150,
+          height: 150,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: tint.withValues(alpha: 0.10),
+          ),
+          alignment: Alignment.center,
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: gradient,
+              boxShadow: [
+                BoxShadow(
+                  color: tint.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
                 ),
-              ),
-            );
-          } else {
-            _controller.nextPage(
-              duration: Duration(milliseconds: 100),
-              curve: Curves.bounceIn,
-            );
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          // Set the background color here
-          backgroundColor:
-              kblue, // Example color, you can change it to your desired color
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 48),
           ),
         ),
       ),
@@ -210,13 +265,12 @@ class _OnboardingState extends State<Onboarding> {
   }
 }
 
-// ignore: must_be_immutable
 class FadingText extends StatefulWidget {
   final String text;
 
-  FadingText({super.key, required this.text});
+  const FadingText({super.key, required this.text});
   @override
-  _FadingTextState createState() => _FadingTextState();
+  State<FadingText> createState() => _FadingTextState();
 }
 
 class _FadingTextState extends State<FadingText>
@@ -228,19 +282,11 @@ class _FadingTextState extends State<FadingText>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(milliseconds: 900),
       vsync: this,
     );
-
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _controller.forward();
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        // Do something when the animation completes, if necessary
-      }
-    });
   }
 
   @override
@@ -255,7 +301,15 @@ class _FadingTextState extends State<FadingText>
       opacity: _animation,
       child: Text(
         widget.text,
-        style: GoogleFonts.prociono(fontSize: 25),
+        textAlign: TextAlign.center,
+        maxLines: 4,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontSize: 20,
+          height: 1.35,
+          fontWeight: FontWeight.w600,
+          color: Brand.text,
+        ),
       ),
     );
   }
@@ -263,27 +317,22 @@ class _FadingTextState extends State<FadingText>
 
 class FadeInImageExample extends StatefulWidget {
   final String url;
-  FadeInImageExample({required this.url});
+  const FadeInImageExample({super.key, required this.url});
   @override
-  _FadeInImageExampleState createState() => _FadeInImageExampleState();
+  State<FadeInImageExample> createState() => _FadeInImageExampleState();
 }
 
 class _FadeInImageExampleState extends State<FadeInImageExample>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 900),
       vsync: this,
-    );
-
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-
-    _controller.forward();
+    )..forward();
   }
 
   @override
@@ -294,17 +343,9 @@ class _FadeInImageExampleState extends State<FadeInImageExample>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _animation.value,
-          child: Image.asset(
-            widget.url, // Replace with your image asset path
-            height: 300,
-          ),
-        );
-      },
+    return FadeTransition(
+      opacity: _controller,
+      child: Image.asset(widget.url, fit: BoxFit.contain),
     );
   }
 }

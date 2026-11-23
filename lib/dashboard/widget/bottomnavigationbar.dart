@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:greenway_lms/Profilepage/profile.dart';
-import 'package:greenway_lms/dashboard/dashboard.dart';
-import 'package:greenway_lms/dashboard/widget/carousaldash.dart';
-// import 'package:mcj/data.dart/apicalls.dart';
-// import 'package:mcj/data.dart/loginmodel/loginmodel.dart';
-import 'package:greenway_lms/others/constants.dart';
+import 'package:greenway/Profilepage/profile.dart';
+import 'package:greenway/dashboard/dashboard.dart';
+import 'package:greenway/dashboard/widget/appdrawer.dart';
+import 'package:greenway/others/constants.dart';
+import 'package:greenway/widgets/app_actions.dart';
+import 'package:greenway/widgets/app_widgets.dart';
 
 // ignore: camel_case_types
 class navigationbar extends StatefulWidget {
@@ -17,39 +16,74 @@ class navigationbar extends StatefulWidget {
 
 // ignore: camel_case_types
 class _navigationbarState extends State<navigationbar> {
-  int _currentindex = 0;
-  final List<Widget> _pages = [
-    const dashboard(),
-    const pagetwo(),
-    const profile_page(),
+  static const List<Widget> _pages = [
+    dashboard(),
+    pagetwo(),
+    profile_page(),
   ];
+
   @override
-  Widget build(BuildContext context) {
-    bool user = false;
-    if (rememberUser == null) {
-      user = true;
-    }
-    return Scaffold(
-      body: _pages[_currentindex],
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentindex,
-          onTap: (int index) {
-            setState(() {
-              _currentindex = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard), label: 'Dashboard'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.notifications), label: 'Nottification'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle_rounded), label: 'profile')
-          ]),
-    );
+  void initState() {
+    super.initState();
+    homeTab.value = kTabDashboard;
   }
 
-  // print('printed');
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: homeTab,
+      builder: (context, current, _) {
+        return PopScope(
+          // Back from Notifications/Profile returns to Dashboard first.
+          canPop: current == kTabDashboard,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) homeTab.value = kTabDashboard;
+          },
+          child: Scaffold(
+            body: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              child: KeyedSubtree(
+                  key: ValueKey(current), child: _pages[current]),
+            ),
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1B2559).withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: NavigationBar(
+                selectedIndex: current,
+                height: 68,
+                onDestinationSelected: (int index) => homeTab.value = index,
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.dashboard_outlined),
+                    selectedIcon: Icon(Icons.dashboard_rounded),
+                    label: 'Dashboard',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.notifications_none_rounded),
+                    selectedIcon: Icon(Icons.notifications_rounded),
+                    label: 'Notifications',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.person_outline_rounded),
+                    selectedIcon: Icon(Icons.person_rounded),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class pagetwo extends StatelessWidget {
@@ -57,54 +91,24 @@ class pagetwo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        kToolbarHeight;
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('data'),
-      // ),
-      body: Column(children: [
-        Expanded(
-          flex: 3,
-          child: Container(
-            height: _height * 0.4,
-            // width: _width * 0.8,
-            decoration: BoxDecoration(
-              // color: Colors.black,
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/nonottification.jpg'), // Replace 'background_image.jpg' with your image path
-                fit: BoxFit.contain, // Adjust the fit as needed
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Container(
-            child: Column(
-              children: [
-                Text(
-                  'No Nottification Yet',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-                Text('You have no Nottification right now come back latter')
-              ],
-            ),
-          ),
-        )
-      ]),
+      appBar: gradientAppBar('Notifications'),
+      drawer: const MyDrawer(),
+      body: EmptyView(
+        icon: Icons.notifications_none_rounded,
+        title: 'You\'re all caught up',
+        message:
+            'Announcements, exam alerts and updates from $Instittename will appear here.',
+      ),
     );
   }
 }
 
 class PageThree extends StatelessWidget {
+  const PageThree({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Profile Page'),
-    );
+    return const Center(child: Text('Profile Page'));
   }
 }
